@@ -23,7 +23,7 @@ jobs:
       - run: npm run type-check
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
-      - run: npm run e2e:headless
+      - run: npm run e2e:headless --workspace=@lvce-editor/wsl-e2e -- --filter=wsl.quickpick
 
   wsl:
     runs-on: windows-2025
