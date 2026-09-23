@@ -1,9 +1,9 @@
 # WSL support for Lvce Editor
 
 This repository is the home for WSL2 support in Lvce Editor. It is intentionally
-small at first: the extension package contains the command and process layer
-needed to discover WSL and execute a command inside a distribution. Workspace
-transport and the remote server protocol will build on this layer.
+small at first: the extension package registers `WSL: Connect to WSL`, discovers
+the installed distributions, and exposes the first distribution's root through
+a `wsl://` workspace file-system provider.
 
 ## Development
 
@@ -19,12 +19,13 @@ The `levivilet.github.com` SSH host is required for this organization. Keep it
 when adding remotes or documenting clone commands.
 
 On Windows with WSL2 enabled, run `npm run test:wsl` to verify that `wsl.exe`
-can execute a command in the default distribution. The test skips cleanly on
-other platforms or when WSL is unavailable, while the Windows CI job runs it
-explicitly.
+can execute commands and list the root of the first distribution. The test skips
+cleanly on other platforms or when WSL is unavailable. The Windows CI job
+provisions Ubuntu with `Vampire/setup-wsl`, runs this smoke test, builds the
+extension, and runs the Playwright suite.
 
 ## Planned milestones
 
 1. Install and start the Lvce remote server inside WSL2.
-2. Add a `wsl://` workspace file-system provider and workspace transport.
-3. Add end-to-end coverage that opens a WSL folder in the editor.
+2. Add full editor-level end-to-end coverage that opens a WSL folder and checks
+   the Explorer UI.

@@ -29,6 +29,11 @@ jobs:
     runs-on: windows-2025
     steps:
       - uses: actions/checkout@v7
+      - uses: Vampire/setup-wsl@v7
+        with:
+          distribution: Ubuntu-24.04
+          set-as-default: true
+          wsl-version: 2
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
@@ -44,3 +49,6 @@ jobs:
           fi
       - run: npm run test:wsl
       - run: npm run build
+      - name: Install Playwright browser
+        run: npx playwright install chromium
+      - run: npm run e2e

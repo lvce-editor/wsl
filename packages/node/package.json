@@ -10,6 +10,9 @@
     "test:wsl": "node --import tsx test/wsl.test.ts",
     "type-check": "tsc --noEmit"
   },
+  "dependencies": {
+    "@lvce-editor/rpc": "^6.19.3"
+  },
   "devDependencies": {
     "@types/node": "^25.0.1",
     "tsx": "^4.20.6",

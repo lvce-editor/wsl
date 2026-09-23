@@ -21,6 +21,7 @@ await mkdir(outputNode, { recursive: true })
 await build({
   bundle: true,
   entryPoints: [join(root, 'packages', 'extension', 'src', 'wslWorkerMain.ts')],
+  external: ['electron', 'node:*'],
   format: 'esm',
   outfile: join(outputDist, 'wslWorkerMain.js'),
   platform: 'browser',
