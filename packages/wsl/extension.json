@@ -1,0 +1,16 @@
+{
+  "id": "lvce.wsl",
+  "name": "WSL",
+  "description": "Open workspaces hosted in Windows Subsystem for Linux",
+  "browser": "dist/wslMain.js",
+  "activation": [
+    "onCommand:wsl.openFolder"
+  ],
+  "commands": [
+    {
+      "id": "wsl.openFolder",
+      "label": "WSL: Open Folder"
+    }
+  ],
+  "version": "0.0.0-dev"
+}

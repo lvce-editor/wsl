@@ -1,0 +1,23 @@
+{
+  "name": "@lvce-editor/wsl",
+  "version": "0.0.0-dev",
+  "description": "WSL2 process support for Lvce Editor",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/wslMain.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test --import tsx test/**/*.test.ts",
+    "test:wsl": "node --import tsx test/wsl.test.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^25.0.1",
+    "tsx": "^4.20.6",
+    "typescript": "^6.0.3"
+  }
+}
