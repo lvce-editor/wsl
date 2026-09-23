@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
 const output = join(root, '.tmp', 'dist')
 const outputDist = join(output, 'dist')
-const outputNode = join(output, 'node')
+const outputNode = join(outputDist, 'node')
 
 const readJson = async (path: string): Promise<Record<string, any>> => JSON.parse(await readFile(path, 'utf8'))
 

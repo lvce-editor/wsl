@@ -5,12 +5,16 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "e2e": "playwright test",
+    "e2e": "test-with-playwright",
+    "e2e:firefox": "test-with-playwright --browser=firefox",
+    "e2e:firefox:headless": "test-with-playwright --browser=firefox --headless",
+    "e2e:headless": "test-with-playwright --headless",
+    "e2e:webkit": "test-with-playwright --browser=webkit --no-reuse-page",
+    "e2e:webkit:headless": "test-with-playwright --browser=webkit --headless --no-reuse-page",
     "type-check": "tsc"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0",
-    "@types/node": "^25.0.1",
-    "typescript": "^6.0.3"
+    "@lvce-editor/test-with-playwright": "^22.36.4",
+    "playwright-core": "1.63.0"
   }
 }
