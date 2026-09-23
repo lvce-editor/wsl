@@ -1,8 +1,9 @@
+import type { TestContext } from 'node:test'
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { getWslWorkingDirectory } from '../src/wslMain.ts'
+import { getWslWorkingDirectory } from '../src/wslNodeMain.ts'
 
-test('can execute a command in the default WSL distribution', async (context) => {
+void test('can execute a command in the default WSL distribution', async (context: TestContext) => {
   if (process.platform !== 'win32') {
     context.skip('WSL smoke tests run on Windows')
     return
