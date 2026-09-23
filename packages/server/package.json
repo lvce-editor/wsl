@@ -1,0 +1,12 @@
+{
+  "name": "@lvce-editor/wsl-server",
+  "version": "0.0.0-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "@lvce-editor/server": "0.115.10"
+  }
+}

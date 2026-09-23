@@ -1,4 +1,5 @@
 import { context } from 'esbuild'
+import { spawn } from 'node:child_process'
 import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -57,10 +58,22 @@ const nodeContext = await context({
   sourcemap: true,
 })
 
-await Promise.all([extensionContext.watch(), nodeContext.watch(), copyMetadata()])
+await Promise.all([extensionContext.rebuild(), nodeContext.rebuild(), copyMetadata()])
+await Promise.all([extensionContext.watch(), nodeContext.watch()])
 console.log('Watching WSL extension and node bundles')
 
+const server = spawn(process.execPath, [join(root, 'packages', 'server', 'src', 'server.js'), '--test-path=packages/e2e'], {
+  cwd: root,
+  stdio: 'inherit',
+})
+
+let disposed = false
 const dispose = async (): Promise<void> => {
+  if (disposed) {
+    return
+  }
+  disposed = true
+  server.kill()
   await Promise.all([extensionContext.dispose(), nodeContext.dispose()])
   process.exit(0)
 }
