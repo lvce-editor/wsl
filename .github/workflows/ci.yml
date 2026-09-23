@@ -34,12 +34,15 @@ jobs:
         include:
           - distribution: Ubuntu-24.04
             setup-distribution: Ubuntu-24.04
+            wsl-distribution: Ubuntu-24.04
           - distribution: kali-linux
             setup-distribution: kali-linux
+            wsl-distribution: MyDistribution
           - distribution: archlinux
             setup-distribution: Ubuntu-24.04
+            wsl-distribution: archlinux
     env:
-      WSL_DISTRIBUTION: ${{ matrix.distribution }}
+      WSL_DISTRIBUTION: ${{ matrix.wsl-distribution }}
     steps:
       - uses: actions/checkout@v7
       - uses: Vampire/setup-wsl@v7
