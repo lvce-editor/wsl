@@ -25,7 +25,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - run: npm run e2e:headless --workspace=@lvce-editor/wsl-e2e -- --filter=wsl.quickpick
 
-  wsl:
+  wsl_distributions:
+    name: WSL (${{ matrix.distribution }})
     runs-on: windows-2025
     strategy:
       fail-fast: false
@@ -74,3 +75,16 @@ jobs:
       - name: Install Playwright browser
         run: npx playwright install chromium
       - run: npm run e2e:headless
+
+  wsl:
+    runs-on: ubuntu-24.04
+    if: always()
+    needs:
+      - wsl_distributions
+    steps:
+      - name: Require every WSL distribution job to pass
+        run: |
+          if [ "${{ needs.wsl_distributions.result }}" != "success" ]; then
+            echo 'One or more WSL distribution jobs failed or were cancelled.'
+            exit 1
+          fi
