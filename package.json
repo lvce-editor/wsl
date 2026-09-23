@@ -12,7 +12,7 @@
     "test": "npm test --workspaces --if-present",
     "e2e": "npm run e2e --workspace=@lvce-editor/wsl-e2e",
     "test:wsl": "npm run test:wsl --workspace=@lvce-editor/wsl",
-    "type-check": "npm run type-check --workspace=@lvce-editor/wsl",
+    "type-check": "npm run type-check --workspace=@lvce-editor/wsl && npm run type-check --workspace=@lvce-editor/wsl-e2e",
     "lint": "eslint .",
     "format": "prettier --write ."
   },
