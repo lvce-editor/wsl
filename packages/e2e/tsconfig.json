@@ -1,13 +1,17 @@
 {
   "compilerOptions": {
-    "allowJs": true,
+    "target": "esnext",
+    "lib": ["esnext"],
     "checkJs": true,
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "noEmit": true,
     "skipLibCheck": true,
     "strict": true,
-    "types": ["@playwright/test", "node"]
+    "noImplicitAny": false,
+    "allowJs": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["*.js", "test/**/*.js"]
+  "include": ["src", "e2e.config.js"]
 }
