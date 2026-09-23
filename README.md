@@ -16,6 +16,16 @@ npm run build
 npm run dev
 ```
 
+To run the browser test locally, install Chromium once and run the headed
+suite:
+
+```sh
+npx playwright install chromium
+npm run e2e
+```
+
+Use `npm run e2e:headless` when no desktop session is available.
+
 `npm run dev` watches the extension and Node entrypoints and rebuilds their
 bundles into `.tmp/dist` as source files change.
 

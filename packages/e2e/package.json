@@ -8,6 +8,7 @@
     "e2e": "test-with-playwright",
     "e2e:firefox": "test-with-playwright --browser=firefox",
     "e2e:firefox:headless": "test-with-playwright --browser=firefox --headless",
+    "e2e:headed": "test-with-playwright --no-headless",
     "e2e:headless": "test-with-playwright --headless",
     "e2e:webkit": "test-with-playwright --browser=webkit --no-reuse-page",
     "e2e:webkit:headless": "test-with-playwright --browser=webkit --headless --no-reuse-page",
