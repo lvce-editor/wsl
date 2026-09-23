@@ -3,11 +3,7 @@
   "name": "WSL",
   "description": "Open workspaces hosted in Windows Subsystem for Linux",
   "browser": "dist/wslWorkerMain.js",
-  "contentSecurityPolicy": [
-    "default-src 'none'",
-    "script-src 'self'",
-    "connect-src 'self' ws://127.0.0.1:* ws://localhost:*"
-  ],
+  "contentSecurityPolicy": ["default-src 'none'", "script-src 'self'", "connect-src 'self' ws://127.0.0.1:* ws://localhost:*"],
   "rpc": [
     {
       "id": "lvce.wsl.node",
@@ -16,13 +12,21 @@
       "url": "dist/node/wslNodeMain.js"
     }
   ],
-  "activation": [
-    "onCommand:wsl.openFolder"
+  "isolated": true,
+  "preserveRuntimeOnWorkspaceChange": true,
+  "compatibility": {
+    "web": false
+  },
+  "fileSystemProviders": [
+    {
+      "id": "wsl"
+    }
   ],
+  "activation": ["onCommand:wsl.connect", "onFileSystem:wsl"],
   "commands": [
     {
-      "id": "wsl.openFolder",
-      "label": "WSL: Open Folder"
+      "id": "wsl.connect",
+      "label": "WSL: Connect to WSL"
     }
   ],
   "version": "0.0.0-dev"
