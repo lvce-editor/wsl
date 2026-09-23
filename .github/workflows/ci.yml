@@ -2,7 +2,11 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
+    branches:
+      - main
 
 jobs:
   node:
@@ -17,6 +21,9 @@ jobs:
       - run: npm run type-check
       - run: npm test
       - run: npm run build
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - run: npm run e2e
 
   wsl:
     runs-on: windows-latest

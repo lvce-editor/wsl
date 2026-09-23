@@ -10,6 +10,7 @@
   "scripts": {
     "build": "npm run build --workspace=@lvce-editor/wsl",
     "test": "npm test --workspaces --if-present",
+    "e2e": "npm run e2e --workspace=@lvce-editor/wsl-e2e",
     "test:wsl": "npm run test:wsl --workspace=@lvce-editor/wsl",
     "type-check": "npm run type-check --workspace=@lvce-editor/wsl",
     "lint": "eslint .",

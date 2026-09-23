@@ -1,0 +1,15 @@
+{
+  "name": "@lvce-editor/wsl-e2e",
+  "version": "0.0.0-dev",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "e2e": "playwright test",
+    "type-check": "tsc"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "typescript": "^6.0.3"
+  }
+}
