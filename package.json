@@ -12,6 +12,7 @@
     "dev": "node --experimental-strip-types packages/build/src/dev.ts",
     "test": "npm test --workspaces --if-present",
     "e2e": "npm run e2e --workspace=@lvce-editor/wsl-e2e",
+    "e2e:headless": "npm run e2e:headless --workspace=@lvce-editor/wsl-e2e",
     "test:wsl": "npm run test:wsl --workspace=@lvce-editor/wsl-node",
     "type-check": "npm run type-check --workspace=@lvce-editor/wsl-node && npm run type-check --workspace=@lvce-editor/wsl-extension && npm run type-check --workspace=build && npm run type-check --workspace=@lvce-editor/wsl-e2e",
     "lint": "eslint .",
