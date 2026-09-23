@@ -7,7 +7,7 @@
     "noEmit": true,
     "skipLibCheck": true,
     "strict": true,
-    "types": ["@playwright/test"]
+    "types": ["@playwright/test", "node"]
   },
   "include": ["*.js", "test/**/*.js"]
 }
