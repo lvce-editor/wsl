@@ -13,7 +13,11 @@ cd wsl
 npm ci
 npm test
 npm run build
+npm run dev
 ```
+
+`npm run dev` watches the extension and Node entrypoints and rebuilds their
+bundles into `.tmp/dist` as source files change.
 
 The `levivilet.github.com` SSH host is required for this organization. Keep it
 when adding remotes or documenting clone commands.

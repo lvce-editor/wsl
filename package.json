@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "build": "node --experimental-strip-types packages/build/src/build.ts",
+    "dev": "node --experimental-strip-types packages/build/src/dev.ts",
     "test": "npm test --workspaces --if-present",
     "e2e": "npm run e2e --workspace=@lvce-editor/wsl-e2e",
     "test:wsl": "npm run test:wsl --workspace=@lvce-editor/wsl-node",
