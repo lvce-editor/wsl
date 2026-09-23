@@ -12,6 +12,9 @@ void test('can execute a command in the default WSL distribution', async (contex
     const workingDirectory = await getWslWorkingDirectory()
     assert.match(workingDirectory, /^\//)
   } catch (error) {
+    if (process.env.CI) {
+      throw error
+    }
     context.skip(`WSL is unavailable: ${error instanceof Error ? error.message : String(error)}`)
   }
 })
@@ -31,6 +34,9 @@ void test('can list the root of the first WSL distribution', async (context: Tes
     assert.ok(entries.length > 0)
     assert.ok(entries.every((entry) => entry.name.length > 0))
   } catch (error) {
+    if (process.env.CI) {
+      throw error
+    }
     context.skip(`WSL is unavailable: ${error instanceof Error ? error.message : String(error)}`)
   }
 })

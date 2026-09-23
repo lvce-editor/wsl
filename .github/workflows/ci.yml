@@ -25,30 +25,69 @@ jobs:
         run: npx playwright install --with-deps chromium
       - run: npm run e2e:headless --workspace=@lvce-editor/wsl-e2e -- --filter=wsl.quickpick
 
-  wsl:
+  wsl_distributions:
+    name: WSL (${{ matrix.distribution }})
     runs-on: windows-2025
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distribution: Ubuntu-24.04
+            setup-distribution: Ubuntu-24.04
+            wsl-distribution: Ubuntu-24.04
+          - distribution: kali-linux
+            setup-distribution: kali-linux
+            wsl-distribution: MyDistribution
+          - distribution: archlinux
+            setup-distribution: Ubuntu-24.04
+            wsl-distribution: archlinux
+    env:
+      WSL_DISTRIBUTION: ${{ matrix.wsl-distribution }}
     steps:
       - uses: actions/checkout@v7
       - uses: Vampire/setup-wsl@v7
         with:
-          distribution: Ubuntu-24.04
+          distribution: ${{ matrix.setup-distribution }}
+          use-cache: 'true'
           set-as-default: true
           wsl-version: 2
+      - name: Install Arch Linux
+        if: matrix.distribution == 'archlinux'
+        shell: pwsh
+        run: |
+          wsl.exe --install --distribution archlinux --no-launch
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wsl.exe --set-default archlinux
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          wsl.exe --unregister Ubuntu-24.04
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - name: Check WSL2
-        shell: bash
+      - name: Check selected WSL distribution
+        shell: pwsh
         run: |
-          wsl.exe --status
-          if [ $? -ne 0 ]; then
-            echo 'WSL2 is not available on this runner'
-            exit 1
-          fi
+          wsl.exe --list --verbose
+          if ($LASTEXITCODE -ne 0) { throw 'WSL is not available on this runner' }
+          wsl.exe --distribution $env:WSL_DISTRIBUTION -- sh -lc 'cat /etc/os-release; uname -a'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - run: npm run test:wsl
       - run: npm run build
       - name: Install Playwright browser
         run: npx playwright install chromium
       - run: npm run e2e:headless
+
+  wsl:
+    runs-on: ubuntu-24.04
+    if: always()
+    needs:
+      - wsl_distributions
+    steps:
+      - name: Require every WSL distribution job to pass
+        run: |
+          if [ "${{ needs.wsl_distributions.result }}" != "success" ]; then
+            echo 'One or more WSL distribution jobs failed or were cancelled.'
+            exit 1
+          fi
