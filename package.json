@@ -8,11 +8,11 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspace=@lvce-editor/wsl",
+    "build": "node --experimental-strip-types packages/build/src/build.ts",
     "test": "npm test --workspaces --if-present",
     "e2e": "npm run e2e --workspace=@lvce-editor/wsl-e2e",
-    "test:wsl": "npm run test:wsl --workspace=@lvce-editor/wsl",
-    "type-check": "npm run type-check --workspace=@lvce-editor/wsl && npm run type-check --workspace=@lvce-editor/wsl-e2e",
+    "test:wsl": "npm run test:wsl --workspace=@lvce-editor/wsl-node",
+    "type-check": "npm run type-check --workspace=@lvce-editor/wsl-node && npm run type-check --workspace=@lvce-editor/wsl-extension && npm run type-check --workspace=build && npm run type-check --workspace=@lvce-editor/wsl-e2e",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

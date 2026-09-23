@@ -10,34 +10,37 @@ on:
 
 jobs:
   node:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      - run: npm run type-check
-      - run: npm test
       - run: npm run build
+      - run: npm test
+      - run: npm run type-check
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - run: npm run e2e
 
   wsl:
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
       - name: Check WSL2
-        shell: pwsh
+        shell: bash
         run: |
           wsl.exe --status
-          if ($LASTEXITCODE -ne 0) { throw 'WSL2 is not available on this runner' }
+          if [ $? -ne 0 ]; then
+            echo 'WSL2 is not available on this runner'
+            exit 1
+          fi
       - run: npm run test:wsl
       - run: npm run build

@@ -1,0 +1,14 @@
+{
+  "name": "@lvce-editor/wsl-extension",
+  "version": "0.0.0-dev",
+  "description": "WSL2 extension for Lvce Editor",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/wslWorkerMain.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

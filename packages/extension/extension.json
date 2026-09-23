@@ -1,0 +1,29 @@
+{
+  "id": "lvce.wsl",
+  "name": "WSL",
+  "description": "Open workspaces hosted in Windows Subsystem for Linux",
+  "browser": "dist/wslWorkerMain.js",
+  "contentSecurityPolicy": [
+    "default-src 'none'",
+    "script-src 'self'",
+    "connect-src 'self' ws://127.0.0.1:* ws://localhost:*"
+  ],
+  "rpc": [
+    {
+      "id": "lvce.wsl.node",
+      "type": "node-process",
+      "name": "WSL",
+      "url": "dist/node/wslNodeMain.js"
+    }
+  ],
+  "activation": [
+    "onCommand:wsl.openFolder"
+  ],
+  "commands": [
+    {
+      "id": "wsl.openFolder",
+      "label": "WSL: Open Folder"
+    }
+  ],
+  "version": "0.0.0-dev"
+}
