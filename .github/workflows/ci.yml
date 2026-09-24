@@ -79,15 +79,7 @@ jobs:
         run: npm test --workspace=@lvce-editor/wsl-server
       - name: Install Playwright browser
         run: npx playwright install chromium
-      - name: Instrument terminal startup
-        run: node packages/server/test/instrument-terminal.js
       - run: npm run e2e:headless
-      - name: Show terminal startup diagnostics
-        if: always()
-        shell: pwsh
-        run: |
-          if (Test-Path .tmp/terminal-diagnostic.jsonl) { Get-Content .tmp/terminal-diagnostic.jsonl }
-          else { Write-Output 'No PTY creation was recorded' }
 
   wsl:
     runs-on: ubuntu-24.04
