@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.connect-distro'
 
-export const test: Test = async ({ expect, Explorer, Locator, QuickPick, SideBar, Wsl }) => {
+export const test: Test = async ({ Command, expect, FileSystem, Locator, QuickPick, Wsl }) => {
   await Wsl.enableExtension()
   await QuickPick.executeCommand('WSL: Connect to WSL using Distro...')
 
@@ -11,17 +11,12 @@ export const test: Test = async ({ expect, Explorer, Locator, QuickPick, SideBar
   await expect(distroItems).not.toContainText('Install New')
   await QuickPick.selectIndex(0)
 
-  await SideBar.open('Explorer')
-  const bootEntry = Locator('.Explorer .TreeItem[aria-label="boot"]')
-  for (let i = 0; i < 8; i++) {
-    await Explorer.refresh()
-    try {
-      await expect(bootEntry).toBeVisible()
-      return
-    } catch {
-      // The WSL command runs in a separate process; refresh until its workspace update is rendered.
-    }
+  const workspaceUri = await Command.execute('Workspace.getUri')
+  if (typeof workspaceUri !== 'string' || !workspaceUri.startsWith('wsl://')) {
+    throw new Error(`Expected a WSL workspace URI, received ${String(workspaceUri)}`)
   }
-  await Explorer.expandAll()
-  await expect(bootEntry).toBeVisible()
+  const entries = await FileSystem.readDir(workspaceUri)
+  if (entries.every((entry: { readonly name: string }) => entry.name !== 'boot')) {
+    throw new Error(`WSL workspace ${workspaceUri} root did not contain /boot`)
+  }
 }
