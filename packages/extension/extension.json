@@ -22,11 +22,15 @@
       "id": "wsl"
     }
   ],
-  "activation": ["onCommand:wsl.connect", "onCommand:wsl.showLog", "onFileSystem:wsl"],
+  "activation": ["onCommand:wsl.connect", "onCommand:wsl.connectUsingDistro", "onCommand:wsl.showLog", "onFileSystem:wsl"],
   "commands": [
     {
       "id": "wsl.connect",
       "label": "WSL: Connect to WSL"
+    },
+    {
+      "id": "wsl.connectUsingDistro",
+      "label": "WSL: Connect to WSL using Distro..."
     },
     {
       "id": "wsl.showLog",
