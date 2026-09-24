@@ -23,6 +23,10 @@ export const activate = async (): Promise<void> => {
       id: 'wsl.connect',
     })
     registerCommand({
+      execute: Connect.connectUsingDistro,
+      id: 'wsl.connectUsingDistro',
+    })
+    registerCommand({
       execute: ShowLog.showLog,
       id: 'wsl.showLog',
     })
