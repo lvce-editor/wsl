@@ -31,6 +31,7 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
   await expect(terminalRows).toContainText('52501')
   await runTerminalCommand(KeyBoard, 'exit')
   await expect(terminal).toHaveCount(0)
+  await Command.execute('Layout.hidePanel')
 
   await Wsl.enableExtension()
   const extensions = await Command.execute('ExtensionManagement.getExtensions')
