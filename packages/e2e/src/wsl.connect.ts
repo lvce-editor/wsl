@@ -20,8 +20,9 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
   await Locator('.PanelTab[name="Terminals"]').click()
   const terminal = Locator('.XtermTerminal')
   await expect(terminal).toBeVisible()
+  await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
   await runTerminalCommand(KeyBoard, 'echo LVCE_WSL_TERMINAL_E2E')
-  await expect(terminal).toContainText('LVCE_WSL_TERMINAL_E2E')
+  await expect(terminal.locator('.xterm-rows')).toContainText('LVCE_WSL_TERMINAL_E2E')
   await runTerminalCommand(KeyBoard, 'exit')
 
   await Wsl.enableExtension()
