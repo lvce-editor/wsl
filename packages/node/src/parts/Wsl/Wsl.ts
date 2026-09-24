@@ -23,13 +23,17 @@ const decode = (value: Buffer): string => {
   return value.toString('utf8')
 }
 
-const parseDistribution = (uri: string): { distribution: string; path: string } => {
+export const parseWslUri = (uri: string): { distribution: string; path: string } => {
   const url = new URL(uri)
   if (url.protocol !== 'wsl:') {
     throw new Error(`Expected wsl URI, received ${uri}`)
   }
-  if (!url.hostname) {
+  const authority = /^wsl:\/\/([^/?#]*)/i.exec(uri)?.[1]
+  if (!url.hostname || !authority) {
     throw new Error(`WSL URI has no distribution: ${uri}`)
+  }
+  if (url.username || url.password || url.port) {
+    throw new Error(`Invalid WSL distribution authority: ${uri}`)
   }
   if (url.search || url.hash) {
     throw new Error('WSL URIs must not contain a query or fragment')
@@ -39,7 +43,7 @@ const parseDistribution = (uri: string): { distribution: string; path: string } 
     throw new Error(`Invalid WSL path: ${path}`)
   }
   return {
-    distribution: decodeURIComponent(url.hostname),
+    distribution: decodeURIComponent(authority),
     path,
   }
 }
@@ -57,7 +61,7 @@ export const listDistributions = async (): Promise<readonly string[]> => {
 }
 
 export const connect = async (uri: string): Promise<{ readonly distribution: string }> => {
-  const location = parseDistribution(uri)
+  const location = parseWslUri(uri)
   const output = decode(await runInDistribution(location.distribution, 'stat', ['--format=%F', location.path])).trim()
   if (output !== 'directory') {
     throw new Error(`WSL workspace is not a directory: ${location.path}`)
@@ -76,7 +80,7 @@ const getType = (type: string): number => {
 }
 
 export const readDirWithFileTypes = async (uri: string): Promise<readonly { readonly name: string; readonly type: number }[]> => {
-  const location = parseDistribution(uri)
+  const location = parseWslUri(uri)
   const output = decode(
     await runInDistribution(location.distribution, 'find', [location.path, '-mindepth', '1', '-maxdepth', '1', '-printf', '%f\\0%y\\0']),
   )
@@ -90,15 +94,25 @@ export const readDirWithFileTypes = async (uri: string): Promise<readonly { read
 }
 
 export const readFile = async (uri: string): Promise<string> => {
-  const location = parseDistribution(uri)
+  const location = parseWslUri(uri)
   const output = await runInDistribution(location.distribution, 'cat', [location.path])
   return output.toString('base64')
 }
 
 export const stat = async (uri: string): Promise<number> => {
-  const location = parseDistribution(uri)
+  const location = parseWslUri(uri)
   const output = decode(await runInDistribution(location.distribution, 'stat', ['--format=%F', location.path])).trim()
   return getType(output)
+}
+
+export const getOpenExternalPath = async (uri: string): Promise<string> => {
+  const location = parseWslUri(uri)
+  const output = decode(await runInDistribution(location.distribution, 'wslpath', ['-w', location.path]))
+  const path = output.trim()
+  if (!path.startsWith('\\\\')) {
+    throw new Error(`WSL did not return a Windows network path for ${uri}`)
+  }
+  return path
 }
 
 export const getWslWorkingDirectory = async (): Promise<string> => {

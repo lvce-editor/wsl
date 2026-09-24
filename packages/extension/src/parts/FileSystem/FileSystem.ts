@@ -7,6 +7,9 @@ const decodeBase64 = (value: string): ArrayBuffer => {
 }
 
 export const fileSystem: FileSystemProvider = {
+  getOpenExternalPath: async (uri: string): Promise<string> => {
+    return (await Rpc.invoke('WslFileSystem.getOpenExternalPath', uri)) as string
+  },
   id: 'wsl',
   isReadonly: () => false,
   readDirWithFileTypes: async (uri: string): Promise<readonly FileSystemDirent[]> => {
