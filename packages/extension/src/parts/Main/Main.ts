@@ -18,7 +18,6 @@ export const activate = async (): Promise<void> => {
   try {
     await activateExtensionApi()
     registerFileSystemProvider(fileSystem)
-    await output.appendLine('WSL extension activated')
     registerCommand({
       execute: Connect.connect,
       id: 'wsl.connect',
@@ -27,6 +26,7 @@ export const activate = async (): Promise<void> => {
       execute: ShowLog.showLog,
       id: 'wsl.showLog',
     })
+    await output.appendLine('WSL extension activated')
   } catch (error) {
     state.activated = false
     await Rpc.dispose()
