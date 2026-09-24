@@ -22,12 +22,12 @@ export const test: Test = async ({ expect, Explorer, Locator, SideBar, Wsl }) =>
 
   await expect(varFolder).toBeVisible()
   await expect(varFolder).toHaveAttribute('aria-expanded', 'false')
-  await expect(varFolder).toHaveAttribute('aria-level', '0')
+  await expect(varFolder).toHaveAttribute('aria-level', '1')
   await expect(logFolder).toBeHidden()
 
   await varFolder.click()
 
   await expect(varFolder).toHaveAttribute('aria-expanded', 'true')
   await expect(logFolder).toBeVisible()
-  await expect(logFolder).toHaveAttribute('aria-level', '1')
+  await expect(logFolder).toHaveAttribute('aria-level', '2')
 }
