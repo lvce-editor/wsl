@@ -9,7 +9,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@lvce-editor/api": "^9.28.0",
+    "@lvce-editor/api": "^9.35.4",
     "typescript": "^6.0.3"
   }
 }
