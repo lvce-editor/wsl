@@ -2,7 +2,28 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.connect'
 
-export const test: Test = async ({ Command, expect, Explorer, Locator, SideBar, Wsl }) => {
+type Keyboard = Parameters<Test>[0]['KeyBoard']
+
+const typeText = async (keyboard: Keyboard, text: string): Promise<void> => {
+  for (const char of text) {
+    await keyboard.press(char === ' ' ? 'Space' : char)
+  }
+}
+
+const runTerminalCommand = async (keyboard: Keyboard, command: string): Promise<void> => {
+  await typeText(keyboard, command)
+  await keyboard.press('Enter')
+}
+
+export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator, SideBar, Wsl }) => {
+  await Command.execute('Layout.showPanel', 'Problems')
+  await Locator('.PanelTab[name="Terminals"]').click()
+  const terminal = Locator('.XtermTerminal')
+  await expect(terminal).toBeVisible()
+  await runTerminalCommand(KeyBoard, 'echo LVCE_WSL_TERMINAL_E2E')
+  await expect(terminal).toContainText('LVCE_WSL_TERMINAL_E2E')
+  await runTerminalCommand(KeyBoard, 'exit')
+
   await Wsl.enableExtension()
   const extensions = await Command.execute('ExtensionManagement.getExtensions')
   const extension = extensions.find((candidate: { id?: string }) => candidate.id === 'lvce.wsl')
