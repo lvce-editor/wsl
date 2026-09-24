@@ -17,27 +17,41 @@ const waitFor = async (promise, description) => {
 }
 
 test('Windows terminal PTY accepts input, resizes, returns output, and exits', { skip: process.platform !== 'win32' }, async () => {
-  const marker = 'LVCE_WSL_TERMINAL_SMOKE'
-  const terminal = spawn(process.env.ComSpec || 'cmd.exe', ['/d', '/q', '/v:on', '/c', 'set /p INPUT= && echo !INPUT!'], {
+  const input = 'LVCE_WSL_TERMINAL_INPUT'
+  const outputMarker = `LVCE_WSL_TERMINAL_OUTPUT:${input}`
+  const command = 'echo LVCE_WSL_TERMINAL_READY & set /p INPUT= && echo RECEIVED:!INPUT!'
+  const terminal = spawn(process.env.ComSpec || 'cmd.exe', ['/d', '/q', '/v:on', '/c', command], {
     cols: 80,
     rows: 24,
   })
   let output = ''
-  const markerReceived = new Promise((resolve) => {
-    terminal.onData((data) => {
-      output += data
-      if (output.includes(marker)) {
-        resolve()
-      }
+  let exited = false
+  try {
+    const outputReceived = new Promise((resolve) => {
+      terminal.onData((data) => {
+        output += data
+        if (output.includes(outputMarker)) {
+          resolve()
+        }
+      })
     })
-  })
-  const exit = new Promise((resolve) => terminal.onExit(resolve))
+    const exit = new Promise((resolve) =>
+      terminal.onExit((result) => {
+        exited = true
+        resolve(result)
+      }),
+    )
 
-  terminal.resize(100, 30)
-  terminal.write(`${marker}\r`)
-  await waitFor(markerReceived, 'terminal command output')
-  const result = await waitFor(exit, 'terminal process exit')
+    terminal.resize(100, 30)
+    terminal.write(`${input}\r`)
+    await waitFor(outputReceived, 'terminal command output')
+    const result = await waitFor(exit, 'terminal process exit')
 
-  assert.match(output, new RegExp(marker))
-  assert.equal(result.exitCode, 0)
+    assert.ok(output.includes(outputMarker), `Expected ${JSON.stringify(output)} to include ${outputMarker}`)
+    assert.equal(result.exitCode, 0)
+  } finally {
+    if (!exited) {
+      terminal.kill()
+    }
+  }
 })
