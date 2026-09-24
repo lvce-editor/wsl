@@ -26,8 +26,9 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
   await expect(terminal).toBeVisible()
   await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
   await expect(terminalRows).toContainText('PS ')
-  await runTerminalCommand(KeyBoard, "echo ('lvcewsl' + 'terminal')")
-  await expect(terminalRows).toContainText('lvcewslterminal')
+  // The computed result is absent from the input, so echoed keystrokes cannot pass.
+  await runTerminalCommand(KeyBoard, '123456789 -band 65535')
+  await expect(terminalRows).toContainText('52501')
   await runTerminalCommand(KeyBoard, 'exit')
   await expect(terminal).toHaveCount(0)
 
