@@ -22,11 +22,25 @@
       "id": "wsl"
     }
   ],
-  "activation": ["onCommand:wsl.connect", "onFileSystem:wsl"],
+  "activation": ["onCommand:wsl.connect", "onCommand:wsl.connectUsingDistro", "onCommand:wsl.showLog", "onFileSystem:wsl"],
   "commands": [
     {
       "id": "wsl.connect",
       "label": "WSL: Connect to WSL"
+    },
+    {
+      "id": "wsl.connectUsingDistro",
+      "label": "WSL: Connect to WSL using Distro..."
+    },
+    {
+      "id": "wsl.showLog",
+      "label": "WSL: Show Log"
+    }
+  ],
+  "outputChannels": [
+    {
+      "id": "wsl",
+      "label": "WSL"
     }
   ],
   "version": "0.0.0-dev"
