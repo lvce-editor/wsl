@@ -2,9 +2,8 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.connect'
 
-export const test: Test = async ({ ActivityBar, Command, expect, Explorer, Extension, Locator, QuickPick, SideBar }) => {
-  await Extension.enableWorkspace('lvce.wsl')
-  await ActivityBar.handleExtensionsChanged()
+export const test: Test = async ({ Command, expect, Explorer, Locator, SideBar, Wsl }) => {
+  await Wsl.enableExtension()
   const extensions = await Command.execute('ExtensionManagement.getExtensions')
   const extension = extensions.find((candidate: { id?: string }) => candidate.id === 'lvce.wsl')
   if (!extension) {
@@ -13,12 +12,7 @@ export const test: Test = async ({ ActivityBar, Command, expect, Explorer, Exten
   if (!Array.isArray(extension.activation) || !extension.activation.includes('onCommand:wsl.connect')) {
     throw new Error(JSON.stringify(extension))
   }
-  await QuickPick.open()
-  await QuickPick.setValue('>WSL: Connect to WSL')
-
-  const connectCommand = Locator('.QuickPickItem', { hasText: 'WSL: Connect to WSL' })
-  await expect(connectCommand).toBeVisible()
-  await QuickPick.selectItem('WSL: Connect to WSL')
+  await Wsl.connect()
 
   await SideBar.open('Explorer')
   const bootEntry = Locator('.Explorer .TreeItem[aria-label="boot"]')
