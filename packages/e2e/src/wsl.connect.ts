@@ -15,7 +15,10 @@ const runTerminalCommand = async (keyboard: Keyboard, command: string): Promise<
   await keyboard.press('Enter')
 }
 
-export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator, SideBar, Wsl }) => {
+export const test: Test = async ({ Command, expect, Explorer, FileSystem, KeyBoard, Locator, SideBar, Workspace, Wsl }) => {
+  // The test page URL and memfs workspace cannot be used as a native shell cwd.
+  const terminalDirectory = await FileSystem.getTmpDir({ scheme: 'file' })
+  await Workspace.setUri(terminalDirectory)
   await Command.execute('Layout.showPanel', 'Problems')
   await Locator('.PanelTab[name="Terminals"]').click()
   const terminal = Locator('.XtermTerminal')
@@ -23,9 +26,11 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
   await expect(terminal).toBeVisible()
   await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
   await expect(terminalRows).toContainText('PS ')
-  await runTerminalCommand(KeyBoard, 'echo lvcewslterminal')
+  await runTerminalCommand(KeyBoard, "echo ('lvcewsl' + 'terminal')")
   await expect(terminalRows).toContainText('lvcewslterminal')
   await runTerminalCommand(KeyBoard, 'exit')
+  await expect(terminal).toHaveCount(0)
+  await FileSystem.remove(terminalDirectory)
 
   await Wsl.enableExtension()
   const extensions = await Command.execute('ExtensionManagement.getExtensions')
