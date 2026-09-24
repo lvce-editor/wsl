@@ -75,6 +75,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - run: npm run test:wsl
       - run: npm run build
+      - name: Verify native terminal support
+        run: npm test --workspace=@lvce-editor/wsl-server
       - name: Install Playwright browser
         run: npx playwright install chromium
       - run: npm run e2e:headless

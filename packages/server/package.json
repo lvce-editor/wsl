@@ -4,9 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node src/server.js"
+    "dev": "node src/server.js",
+    "test": "node --test test/terminal.test.js"
   },
   "dependencies": {
-    "@lvce-editor/server": "0.117.7"
+    "@lvce-editor/server": "0.117.7",
+    "node-pty": "1.1.0-beta34"
   }
 }

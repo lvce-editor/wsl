@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.show-log'
 
-export const test: Test = async ({ expect, Locator, Panel, QuickPick, Wsl }) => {
+export const test: Test = async ({ expect, Locator, QuickPick, Wsl }) => {
   await Wsl.enableExtension()
 
   await QuickPick.open()
@@ -13,9 +13,9 @@ export const test: Test = async ({ expect, Locator, Panel, QuickPick, Wsl }) => 
   await expect(showLogCommand).toHaveCount(1)
   await QuickPick.selectItem('WSL: Show Log')
 
-  await Panel.open('Output')
   const outputChannel = Locator('[name="output"]')
   const outputContent = Locator('.OutputContent')
+  await expect(outputContent).toBeVisible()
   await expect(outputChannel).toHaveValue('wsl')
   await expect(outputContent).toHaveText('WSL extension activated')
 
