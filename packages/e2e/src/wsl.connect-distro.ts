@@ -11,7 +11,8 @@ export const test: Test = async ({ Command, expect, Explorer, FileSystem, Locato
 
   const distroItems = Locator('.QuickPickItem')
   await expect(distroItems.first()).toBeVisible()
-  await expect(Locator('.QuickPickItem', { hasText: 'Install New' })).toHaveCount(0)
+  const installItems = Locator('.QuickPickItem', { hasText: 'Install New' })
+  await expect(installItems).toHaveCount(0)
   await QuickPick.selectIndex(0)
 
   // Extension commands finish asynchronously; wait for the connected Explorer.
