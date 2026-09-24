@@ -1,5 +1,6 @@
 import { build } from 'esbuild'
-import { cp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { loadJsonFile } from 'load-json-file'
+import { cp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -7,8 +8,6 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
 const output = join(root, '.tmp', 'dist')
 const outputDist = join(output, 'dist')
 const outputNode = join(outputDist, 'node')
-
-const readJson = async (path: string): Promise<Record<string, any>> => JSON.parse(await readFile(path, 'utf8'))
 
 const writeJson = async (path: string, value: Record<string, any>): Promise<void> => {
   await writeFile(path, `${JSON.stringify(value, null, 2)}\n`)
@@ -38,13 +37,13 @@ await build({
   packages: 'external',
 })
 
-const extensionPackage = await readJson(join(root, 'packages', 'extension', 'package.json'))
+const extensionPackage = await loadJsonFile<Record<string, any>>(join(root, 'packages', 'extension', 'package.json'))
 delete extensionPackage.scripts
 delete extensionPackage.devDependencies
 extensionPackage.main = 'dist/wslWorkerMain.js'
 await writeJson(join(output, 'package.json'), extensionPackage)
 
-const nodePackage = await readJson(join(root, 'packages', 'node', 'package.json'))
+const nodePackage = await loadJsonFile<Record<string, any>>(join(root, 'packages', 'node', 'package.json'))
 delete nodePackage.scripts
 delete nodePackage.devDependencies
 nodePackage.main = 'wslNodeMain.js'
