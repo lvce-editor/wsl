@@ -29,6 +29,12 @@ Use `npm run e2e:headless` when no desktop session is available.
 `npm run dev` watches the extension and Node entrypoints and rebuilds their
 bundles into `.tmp/dist` as source files change.
 
+The WSL server installs `node-pty` directly because its Windows terminal needs
+the native ConPTY addon. On Windows, make the Node.js native-addon build tools
+(Python and Visual Studio C++ Build Tools) available before running `npm ci`.
+The Windows CI job checks that the installed addon can spawn a shell, exchange
+input and output, resize, and exit cleanly.
+
 The `levivilet.github.com` SSH host is required for this organization. Keep it
 when adding remotes or documenting clone commands.
 
