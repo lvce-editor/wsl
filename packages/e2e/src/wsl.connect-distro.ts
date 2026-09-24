@@ -2,9 +2,9 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.connect-distro'
 
-export const test: Test = async ({ Command, expect, Explorer, Locator, QuickPick, SideBar, Wsl }) => {
+export const test: Test = async ({ expect, Explorer, Locator, QuickPick, SideBar, Wsl }) => {
   await Wsl.enableExtension()
-  await Command.execute('wsl.connectUsingDistro')
+  await QuickPick.executeCommand('WSL: Connect to WSL using Distro...')
 
   const distroItems = Locator('.QuickPickItem')
   await expect(distroItems.first()).toBeVisible()
