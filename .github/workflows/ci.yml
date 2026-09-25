@@ -55,12 +55,18 @@ jobs:
         if: matrix.distribution == 'archlinux'
         shell: pwsh
         run: |
-          wsl.exe --install --distribution archlinux --no-launch
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wsl.exe --set-default archlinux
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          wsl.exe --unregister Ubuntu-24.04
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $originalOutputEncoding = [Console]::OutputEncoding
+          try {
+            [Console]::OutputEncoding = [System.Text.Encoding]::Unicode
+            wsl.exe --install --distribution archlinux --no-launch
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            wsl.exe --set-default archlinux
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            wsl.exe --unregister Ubuntu-24.04
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } finally {
+            [Console]::OutputEncoding = $originalOutputEncoding
+          }
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
@@ -69,8 +75,14 @@ jobs:
       - name: Check selected WSL distribution
         shell: pwsh
         run: |
-          wsl.exe --list --verbose
-          if ($LASTEXITCODE -ne 0) { throw 'WSL is not available on this runner' }
+          $originalOutputEncoding = [Console]::OutputEncoding
+          try {
+            [Console]::OutputEncoding = [System.Text.Encoding]::Unicode
+            wsl.exe --list --verbose
+            if ($LASTEXITCODE -ne 0) { throw 'WSL is not available on this runner' }
+          } finally {
+            [Console]::OutputEncoding = $originalOutputEncoding
+          }
           wsl.exe --distribution $env:WSL_DISTRIBUTION -- sh -lc 'cat /etc/os-release; uname -a'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - run: npm run test:wsl
