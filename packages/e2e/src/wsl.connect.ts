@@ -3,6 +3,13 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 export const name = 'wsl.connect'
 
 type Keyboard = Parameters<Test>[0]['KeyBoard']
+type TestApi = Parameters<Test>[0]
+type LocatorType = Parameters<TestApi['expect']>[0]
+
+const delay = (milliseconds: number): Promise<void> => {
+  const schedule = (globalThis as unknown as { setTimeout: (callback: () => void, delay: number) => unknown }).setTimeout
+  return new Promise((resolve) => schedule(resolve, milliseconds))
+}
 
 const typeText = async (keyboard: Keyboard, text: string): Promise<void> => {
   for (const char of text) {
@@ -15,6 +22,19 @@ const runTerminalCommand = async (keyboard: Keyboard, command: string): Promise<
   await keyboard.press('Enter')
 }
 
+const waitForText = async (expect: TestApi['expect'], locator: LocatorType, text: string): Promise<void> => {
+  const deadline = Date.now() + 10_000
+  while (Date.now() < deadline) {
+    try {
+      await expect(locator).toContainText(text)
+      return
+    } catch {
+      await delay(100)
+    }
+  }
+  await expect(locator).toContainText(text)
+}
+
 export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator, SideBar, Workspace, Wsl }) => {
   // A native shell needs a filesystem path, not the default test-page or memfs URI.
   const terminalDirectory = await Command.execute('PlatformPaths.getTmpDir')
@@ -25,10 +45,10 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
   const terminalRows = terminal.locator('.xterm-rows')
   await expect(terminal).toBeVisible()
   await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
-  await expect(terminalRows).toContainText('PS ')
+  await waitForText(expect, terminalRows, 'PS ')
   // The computed result is absent from the input, so echoed keystrokes cannot pass.
   await runTerminalCommand(KeyBoard, '123456789 -band 65535')
-  await expect(terminalRows).toContainText('52501')
+  await waitForText(expect, terminalRows, '52501')
   await runTerminalCommand(KeyBoard, 'exit')
   await expect(terminal).toHaveCount(0)
   await Command.execute('Layout.hidePanel')
