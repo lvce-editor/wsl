@@ -17,7 +17,18 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
+      - name: Compute node modules cache key
+        id: nodeModulesCacheKey
+        run: echo "value=$(node --experimental-strip-types packages/build/src/computeNodeModulesCacheKey.ts)" >> $GITHUB_OUTPUT
+        shell: bash
+      - uses: actions/cache@v6
+        id: node-modules-cache
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-${{ runner.arch }}-cacheNodeModules-${{ steps.nodeModulesCacheKey.outputs.value }}
+      - name: npm ci
+        run: npm ci
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
       - run: npm run build
       - run: npm test
       - run: npm run type-check
@@ -83,7 +94,18 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
+      - name: Compute node modules cache key
+        id: nodeModulesCacheKey
+        run: echo "value=$(node --experimental-strip-types packages/build/src/computeNodeModulesCacheKey.ts)" >> $GITHUB_OUTPUT
+        shell: bash
+      - uses: actions/cache@v6
+        id: node-modules-cache
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-${{ runner.arch }}-cacheNodeModules-${{ steps.nodeModulesCacheKey.outputs.value }}
+      - name: npm ci
+        run: npm ci
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
       - name: Check selected WSL distribution
         shell: pwsh
         run: |
