@@ -55,18 +55,30 @@ jobs:
         if: matrix.distribution == 'archlinux'
         shell: pwsh
         run: |
-          $originalOutputEncoding = [Console]::OutputEncoding
-          try {
-            [Console]::OutputEncoding = [System.Text.Encoding]::Unicode
-            wsl.exe --install --distribution archlinux --no-launch
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            wsl.exe --set-default archlinux
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-            wsl.exe --unregister Ubuntu-24.04
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          } finally {
-            [Console]::OutputEncoding = $originalOutputEncoding
+          function Invoke-WslUtf16 {
+            param([string[]] $Arguments)
+            $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+            $startInfo.FileName = 'wsl.exe'
+            $startInfo.UseShellExecute = $false
+            $startInfo.RedirectStandardOutput = $true
+            $startInfo.RedirectStandardError = $true
+            $startInfo.StandardOutputEncoding = [System.Text.Encoding]::Unicode
+            $startInfo.StandardErrorEncoding = [System.Text.Encoding]::Unicode
+            foreach ($argument in $Arguments) { [void]$startInfo.ArgumentList.Add($argument) }
+            $process = [System.Diagnostics.Process]::Start($startInfo)
+            $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+            $stderrTask = $process.StandardError.ReadToEndAsync()
+            $process.WaitForExit()
+            [Console]::Out.Write($stdoutTask.GetAwaiter().GetResult())
+            [Console]::Error.Write($stderrTask.GetAwaiter().GetResult())
+            return $process.ExitCode
           }
+          $exitCode = Invoke-WslUtf16 -Arguments @('--install', '--distribution', 'archlinux', '--no-launch')
+          if ($exitCode -ne 0) { exit $exitCode }
+          $exitCode = Invoke-WslUtf16 -Arguments @('--set-default', 'archlinux')
+          if ($exitCode -ne 0) { exit $exitCode }
+          $exitCode = Invoke-WslUtf16 -Arguments @('--unregister', 'Ubuntu-24.04')
+          if ($exitCode -ne 0) { exit $exitCode }
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
@@ -75,14 +87,26 @@ jobs:
       - name: Check selected WSL distribution
         shell: pwsh
         run: |
-          $originalOutputEncoding = [Console]::OutputEncoding
-          try {
-            [Console]::OutputEncoding = [System.Text.Encoding]::Unicode
-            wsl.exe --list --verbose
-            if ($LASTEXITCODE -ne 0) { throw 'WSL is not available on this runner' }
-          } finally {
-            [Console]::OutputEncoding = $originalOutputEncoding
+          function Invoke-WslUtf16 {
+            param([string[]] $Arguments)
+            $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+            $startInfo.FileName = 'wsl.exe'
+            $startInfo.UseShellExecute = $false
+            $startInfo.RedirectStandardOutput = $true
+            $startInfo.RedirectStandardError = $true
+            $startInfo.StandardOutputEncoding = [System.Text.Encoding]::Unicode
+            $startInfo.StandardErrorEncoding = [System.Text.Encoding]::Unicode
+            foreach ($argument in $Arguments) { [void]$startInfo.ArgumentList.Add($argument) }
+            $process = [System.Diagnostics.Process]::Start($startInfo)
+            $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+            $stderrTask = $process.StandardError.ReadToEndAsync()
+            $process.WaitForExit()
+            [Console]::Out.Write($stdoutTask.GetAwaiter().GetResult())
+            [Console]::Error.Write($stderrTask.GetAwaiter().GetResult())
+            return $process.ExitCode
           }
+          $exitCode = Invoke-WslUtf16 -Arguments @('--list', '--verbose')
+          if ($exitCode -ne 0) { throw 'WSL is not available on this runner' }
           wsl.exe --distribution $env:WSL_DISTRIBUTION -- sh -lc 'cat /etc/os-release; uname -a'
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - run: npm run test:wsl
