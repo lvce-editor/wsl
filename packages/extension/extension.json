@@ -22,7 +22,13 @@
       "id": "wsl"
     }
   ],
-  "activation": ["onCommand:wsl.connect", "onCommand:wsl.connectUsingDistro", "onCommand:wsl.showLog", "onFileSystem:wsl"],
+  "activation": [
+    "onCommand:wsl.connect",
+    "onCommand:wsl.connectUsingDistro",
+    "onCommand:wsl.reopenFolder",
+    "onCommand:wsl.showLog",
+    "onFileSystem:wsl"
+  ],
   "commands": [
     {
       "id": "wsl.connect",
@@ -31,6 +37,10 @@
     {
       "id": "wsl.connectUsingDistro",
       "label": "WSL: Connect to WSL using Distro..."
+    },
+    {
+      "id": "wsl.reopenFolder",
+      "label": "WSL: Reopen Folder in WSL"
     },
     {
       "id": "wsl.showLog",

@@ -1,6 +1,7 @@
 import * as Wsl from '../Wsl/Wsl.ts'
 
 export const commandMap = {
+  'Wsl.convertWindowsPath': Wsl.convertWindowsPath,
   'Wsl.listDistributions': Wsl.listDistributions,
   'WslFileSystem.connect': Wsl.connect,
   'WslFileSystem.getOpenExternalPath': Wsl.getOpenExternalPath,

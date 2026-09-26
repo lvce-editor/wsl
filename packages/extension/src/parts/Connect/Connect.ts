@@ -16,6 +16,11 @@ export const toWorkspaceUri = (distribution: string): string => {
   return `wsl://${encodeURIComponent(distribution)}/`
 }
 
+const toWslWorkspaceUri = (distribution: string, path: string): string => {
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/')
+  return `wsl://${encodeURIComponent(distribution)}${encodedPath}`
+}
+
 interface ConnectDependencies {
   readonly execute: typeof executeCommand
   readonly invoke: typeof Rpc.invoke
@@ -78,5 +83,46 @@ export const connectUsingDistro = async (dependencies: ConnectDependencies = def
     await connectToDistribution(selected, dependencies)
   } catch (error) {
     await dependencies.showError(`Failed to connect to WSL: ${getErrorMessage(error)}`)
+  }
+}
+
+export const reopenFolder = async (dependencies: ConnectDependencies = defaultDependencies): Promise<void> => {
+  try {
+    const workspaceUri = await dependencies.execute('Workspace.getUri')
+    if (typeof workspaceUri !== 'string' || !workspaceUri) {
+      await dependencies.showError('Open a Windows folder before reopening it in WSL.')
+      return
+    }
+    if (workspaceUri.startsWith('wsl://')) {
+      await dependencies.showError('The current folder is already open in WSL.')
+      return
+    }
+    const url = new URL(workspaceUri)
+    if (url.protocol !== 'file:' || (url.hostname && url.hostname !== 'localhost') || url.search || url.hash) {
+      await dependencies.showError('Only Windows folders can be reopened in WSL.')
+      return
+    }
+    let windowsPath = decodeURIComponent(url.pathname)
+    if (!/^\/[a-zA-Z]:\//.test(windowsPath)) {
+      await dependencies.showError('Only Windows folders can be reopened in WSL.')
+      return
+    }
+    windowsPath = windowsPath.slice(1).replaceAll('/', '\\')
+
+    const distributions = await getDistributions(dependencies.invoke)
+    const distribution = distributions[0]
+    if (!distribution) {
+      await dependencies.showError('No WSL distributions are installed.')
+      return
+    }
+    const wslPath = await dependencies.invoke('Wsl.convertWindowsPath', distribution, windowsPath)
+    if (typeof wslPath !== 'string' || !wslPath.startsWith('/')) {
+      throw new Error('WSL returned an invalid folder path')
+    }
+    const targetUri = toWslWorkspaceUri(distribution, wslPath)
+    await dependencies.invoke('WslFileSystem.connect', targetUri)
+    await dependencies.execute('Workspace.setUri', targetUri)
+  } catch (error) {
+    await dependencies.showError(`Failed to reopen folder in WSL: ${getErrorMessage(error)}`)
   }
 }
