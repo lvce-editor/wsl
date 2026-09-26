@@ -7,7 +7,7 @@ const delay = (milliseconds: number): Promise<void> => {
   return new Promise((resolve) => schedule(resolve, milliseconds))
 }
 
-export const test: Test = async ({ Command, expect, FileSystem, Locator, Output, QuickPick, Workspace, Wsl }) => {
+export const test: Test = async ({ Command, expect, Explorer, FileSystem, Locator, Output, QuickPick, SideBar, Workspace, Wsl }) => {
   await Wsl.enableExtension()
   const temporaryUriValue = await FileSystem.getTmpDir({ scheme: 'file' })
   const temporaryUri = temporaryUriValue.replace(/\/$/, '')
@@ -41,5 +41,21 @@ export const test: Test = async ({ Command, expect, FileSystem, Locator, Output,
     await expect(outputContent).toContainText('Failed to reopen folder in WSL:')
     throw new Error(`Expected the folder to reopen in WSL, received ${String(workspaceUri)}`)
   }
+
+  // Workspace.setUri completes before Explorer has rendered the new filesystem.
+  // Refresh until the fixture appears, following the existing distro-connect test.
+  await SideBar.open('Explorer')
+  const fixtureEntry = Locator('.Explorer .TreeItem[aria-label="fixture # ✓.txt"]')
+  const explorerDeadline = Date.now() + 20_000
+  while (Date.now() < explorerDeadline) {
+    await Explorer.refresh()
+    try {
+      await expect(fixtureEntry).toBeVisible()
+      break
+    } catch {
+      await delay(100)
+    }
+  }
+  await expect(fixtureEntry).toBeVisible()
   await FileSystem.shouldHaveFile(`${workspaceUri}/fixture%20%23%20%E2%9C%93.txt`, 'WSL folder fixture')
 }
