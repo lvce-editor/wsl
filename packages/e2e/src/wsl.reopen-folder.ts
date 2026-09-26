@@ -2,7 +2,12 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.reopen-folder'
 
-export const test: Test = async ({ Command, expect, FileSystem, Locator, QuickPick, Workspace, Wsl }) => {
+const delay = (milliseconds: number): Promise<void> => {
+  const schedule = (globalThis as unknown as { setTimeout: (callback: () => void, delay: number) => unknown }).setTimeout
+  return new Promise((resolve) => schedule(resolve, milliseconds))
+}
+
+export const test: Test = async ({ Command, expect, FileSystem, Locator, Output, QuickPick, Workspace, Wsl }) => {
   await Wsl.enableExtension()
   const temporaryUriValue = await FileSystem.getTmpDir({ scheme: 'file' })
   const temporaryUri = temporaryUriValue.replace(/\/$/, '')
@@ -21,11 +26,17 @@ export const test: Test = async ({ Command, expect, FileSystem, Locator, QuickPi
   await QuickPick.setValue('>WSL: Reopen Folder in WSL')
   await QuickPick.selectItem('WSL: Reopen Folder in WSL', { waitUntil: 'done' })
 
-  const workspaceUri = await Command.execute('Workspace.getUri')
+  const deadline = Date.now() + 20_000
+  let workspaceUri: unknown
+  while (Date.now() < deadline) {
+    workspaceUri = await Command.execute('Workspace.getUri')
+    if (typeof workspaceUri === 'string' && workspaceUri.startsWith('wsl://')) {
+      break
+    }
+    await delay(100)
+  }
   if (typeof workspaceUri !== 'string' || !workspaceUri.startsWith('wsl://')) {
-    await QuickPick.open()
-    await QuickPick.setValue('>WSL: Show Log')
-    await QuickPick.selectItem('WSL: Show Log')
+    await Output.show()
     const outputContent = Locator('.OutputContent')
     await expect(outputContent).toContainText('Failed to reopen folder in WSL:')
     throw new Error(`Expected the folder to reopen in WSL, received ${String(workspaceUri)}`)
