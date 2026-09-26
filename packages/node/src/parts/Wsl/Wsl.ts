@@ -1,4 +1,5 @@
 import { execFile } from 'node:child_process'
+import { realpath } from 'node:fs/promises'
 import { promisify } from 'node:util'
 
 const execFileAsync = promisify(execFile)
@@ -119,7 +120,8 @@ export const convertWindowsPath = async (distribution: string, windowsPath: stri
   if (!distribution.trim() || !/^[a-zA-Z]:\\/.test(windowsPath)) {
     throw new Error('Expected a Windows folder path and WSL distribution')
   }
-  const output = decode(await runInDistribution(distribution, 'wslpath', ['-u', windowsPath]))
+  const canonicalWindowsPath = await realpath(windowsPath)
+  const output = decode(await runInDistribution(distribution, 'wslpath', ['-u', canonicalWindowsPath]))
   const path = output.trim()
   if (!path.startsWith('/') || path.includes('\0')) {
     throw new Error(`WSL did not return a valid path for ${windowsPath}`)
