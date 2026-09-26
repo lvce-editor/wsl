@@ -1,4 +1,5 @@
 import { executeCommand, showQuickPick } from '@lvce-editor/api'
+import { output } from '../Output/Output.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 
 const showError = async (message: string): Promise<void> => {
@@ -24,6 +25,7 @@ const toWslWorkspaceUri = (distribution: string, path: string): string => {
 interface ConnectDependencies {
   readonly execute: typeof executeCommand
   readonly invoke: typeof Rpc.invoke
+  readonly logError: typeof output.appendLine
   readonly showError: typeof showError
   readonly showPick: typeof showQuickPick
 }
@@ -31,6 +33,7 @@ interface ConnectDependencies {
 const defaultDependencies: ConnectDependencies = {
   execute: executeCommand,
   invoke: Rpc.invoke,
+  logError: (message) => output.appendLine(message),
   showError,
   showPick: showQuickPick,
 }
@@ -123,6 +126,8 @@ export const reopenFolder = async (dependencies: ConnectDependencies = defaultDe
     await dependencies.invoke('WslFileSystem.connect', targetUri)
     await dependencies.execute('Workspace.setUri', targetUri)
   } catch (error) {
-    await dependencies.showError(`Failed to reopen folder in WSL: ${getErrorMessage(error)}`)
+    const message = `Failed to reopen folder in WSL: ${getErrorMessage(error)}`
+    await dependencies.logError(message)
+    await dependencies.showError(message)
   }
 }

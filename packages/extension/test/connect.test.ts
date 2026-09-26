@@ -33,6 +33,7 @@ const createDependencies = (
       }
       return undefined
     },
+    logError: async (): Promise<void> => {},
     showError: async (message: string): Promise<void> => {
       errors.push(message)
     },
