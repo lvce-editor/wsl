@@ -57,5 +57,12 @@ export const test: Test = async ({ Command, expect, Explorer, FileSystem, Locato
     }
   }
   await expect(fixtureEntry).toBeVisible()
-  await FileSystem.shouldHaveFile(`${workspaceUri}/fixture%20%23%20%E2%9C%93.txt`, 'WSL folder fixture')
+  const entries = await FileSystem.readDir(workspaceUri)
+  if (entries.every((entry: { readonly name: string }) => entry.name !== 'fixture # ✓.txt')) {
+    throw new Error(`WSL workspace ${workspaceUri} did not contain the fixture file`)
+  }
+  const fixtureContent = await FileSystem.readFile(`${workspaceUri}/fixture%20%23%20%E2%9C%93.txt`)
+  if (fixtureContent !== 'WSL folder fixture') {
+    throw new Error(`Expected WSL fixture file to contain its original content, received ${fixtureContent}`)
+  }
 }
