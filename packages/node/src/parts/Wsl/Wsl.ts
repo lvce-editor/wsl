@@ -115,6 +115,18 @@ export const getOpenExternalPath = async (uri: string): Promise<string> => {
   return path
 }
 
+export const convertWindowsPath = async (distribution: string, windowsPath: string): Promise<string> => {
+  if (!distribution.trim() || !/^[a-zA-Z]:\\/.test(windowsPath)) {
+    throw new Error('Expected a Windows folder path and WSL distribution')
+  }
+  const output = decode(await runInDistribution(distribution, 'wslpath', ['-u', windowsPath]))
+  const path = output.trim()
+  if (!path.startsWith('/') || path.includes('\0')) {
+    throw new Error(`WSL did not return a valid path for ${windowsPath}`)
+  }
+  return path
+}
+
 export const getWslWorkingDirectory = async (): Promise<string> => {
   const distributions = await listDistributions()
   const distribution = distributions[0]

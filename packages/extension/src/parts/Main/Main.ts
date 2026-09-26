@@ -1,10 +1,9 @@
-import { activate as activateExtensionApi, createOutputChannel, registerCommand, registerFileSystemProvider } from '@lvce-editor/api'
+import { activate as activateExtensionApi, registerCommand, registerFileSystemProvider } from '@lvce-editor/api'
 import * as Connect from '../Connect/Connect.ts'
 import { fileSystem } from '../FileSystem/FileSystem.ts'
+import { output } from '../Output/Output.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import * as ShowLog from '../ShowLog/ShowLog.ts'
-
-const output = createOutputChannel('wsl')
 
 const state = {
   activated: false,
@@ -25,6 +24,10 @@ export const activate = async (): Promise<void> => {
     registerCommand({
       execute: Connect.connectUsingDistro,
       id: 'wsl.connectUsingDistro',
+    })
+    registerCommand({
+      execute: Connect.reopenFolder,
+      id: 'wsl.reopenFolder',
     })
     registerCommand({
       execute: ShowLog.showLog,
