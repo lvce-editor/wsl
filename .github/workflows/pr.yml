@@ -1,0 +1,91 @@
+name: WSL flake reproduction
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  kali:
+    name: Kali attempt ${{ matrix.attempt }}
+    runs-on: windows-2025
+    strategy:
+      fail-fast: false
+      matrix:
+        attempt: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+    env:
+      WSL_DISTRIBUTION: MyDistribution
+    steps:
+      - uses: actions/checkout@v7
+      - uses: Vampire/setup-wsl@v7
+        with:
+          distribution: kali-linux
+          use-cache: 'true'
+          set-as-default: true
+          wsl-version: 2
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Compute node modules cache key
+        id: nodeModulesCacheKey
+        run: echo "value=$(node --experimental-strip-types packages/build/src/computeNodeModulesCacheKey.ts)" >> $GITHUB_OUTPUT
+        shell: bash
+      - uses: actions/cache@v6
+        id: node-modules-cache
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-${{ runner.arch }}-cacheNodeModules-${{ steps.nodeModulesCacheKey.outputs.value }}
+      - name: npm ci
+        run: npm ci
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+      - name: Check selected WSL distribution
+        # The GitHub Actions shell rule does not recognize the valid pwsh shell name.
+        # eslint-disable-next-line github-actions/shell
+        shell: pwsh
+        run: |
+          function Invoke-WslUtf16 {
+            param([string[]] $Arguments)
+            $startInfo = [System.Diagnostics.ProcessStartInfo]::new()
+            $startInfo.FileName = 'wsl.exe'
+            $startInfo.UseShellExecute = $false
+            $startInfo.RedirectStandardOutput = $true
+            $startInfo.RedirectStandardError = $true
+            $startInfo.StandardOutputEncoding = [System.Text.Encoding]::Unicode
+            $startInfo.StandardErrorEncoding = [System.Text.Encoding]::Unicode
+            foreach ($argument in $Arguments) { [void]$startInfo.ArgumentList.Add($argument) }
+            $process = [System.Diagnostics.Process]::Start($startInfo)
+            $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+            $stderrTask = $process.StandardError.ReadToEndAsync()
+            $process.WaitForExit()
+            [Console]::Out.Write($stdoutTask.GetAwaiter().GetResult())
+            [Console]::Error.Write($stderrTask.GetAwaiter().GetResult())
+            return $process.ExitCode
+          }
+          $exitCode = Invoke-WslUtf16 -Arguments @('--list', '--verbose')
+          if ($exitCode -ne 0) { throw 'WSL is not available on this runner' }
+          wsl.exe --distribution $env:WSL_DISTRIBUTION -- sh -lc 'cat /etc/os-release; uname -a'
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - run: npm run test:wsl
+      - run: npm run build
+      - name: Verify native terminal support
+        run: npm test --workspace=@lvce-editor/wsl-server
+      - name: Install Playwright browser
+        run: npx playwright install chromium
+      - name: Run existing e2e suite
+        shell: pwsh
+        run: |
+          npm run e2e:headless 2>&1 | Tee-Object -FilePath e2e-attempt.log
+          exit $LASTEXITCODE
+
+      - name: Upload e2e artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kali-e2e-${{ matrix.attempt }}
+          path: |
+            e2e-attempt.log
+            packages/e2e/screenshots/**
+            packages/e2e/test-results/**
+            packages/e2e/renderer-worker-traces/**
+          if-no-files-found: ignore
