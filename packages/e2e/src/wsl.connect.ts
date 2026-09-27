@@ -36,9 +36,10 @@ const waitForText = async (expect: TestApi['expect'], locator: LocatorType, text
 }
 
 export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator, SideBar, Workspace, Wsl }) => {
-  // A native shell needs a filesystem path, not the default test-page or memfs URI.
+  // Workspace.setPath converts this native filesystem path to a file URI for the terminal.
   const terminalDirectory = await Command.execute('PlatformPaths.getTmpDir')
-  await Workspace.setUri(terminalDirectory)
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
+  await Workspace.setPath(terminalDirectory)
   await Command.execute('Layout.showPanel', 'Problems')
   // Selecting this tab starts and focuses the native terminal; Layout.showPanel alone does not.
   // eslint-disable-next-line e2e/no-direct-click, @typescript-eslint/no-deprecated
