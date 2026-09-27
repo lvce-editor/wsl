@@ -38,13 +38,14 @@ const waitForText = async (expect: TestApi['expect'], locator: LocatorType, text
 export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator, SideBar, Workspace, Wsl }) => {
   // A native shell needs a filesystem path, not the default test-page or memfs URI.
   const terminalDirectory = await Command.execute('PlatformPaths.getTmpDir')
-  await Workspace.setPath(terminalDirectory)
+  await Workspace.setUri(terminalDirectory)
   await Command.execute('Layout.showPanel', 'Problems')
-  await Locator('.PanelTab[name="Terminals"]').click()
+  await Command.execute('Layout.showPanel', 'Terminals')
   const terminal = Locator('.XtermTerminal')
   const terminalRows = terminal.locator('.xterm-rows')
+  const terminalInput = terminal.locator('.xterm-helper-textarea')
   await expect(terminal).toBeVisible()
-  await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
+  await expect(terminalInput).toBeFocused()
   await waitForText(expect, terminalRows, 'PS ')
   // The computed result is absent from the input, so echoed keystrokes cannot pass.
   await runTerminalCommand(KeyBoard, '123456789 -band 65535')

@@ -33,6 +33,13 @@ jobs:
       - name: npm ci
         run: npm ci
         if: steps.node-modules-cache.outputs.cache-hit != 'true'
+      - uses: Vampire/setup-wsl@v7
+        if: runner.os == 'Windows'
+        with:
+          distribution: Ubuntu-24.04
+          use-cache: 'true'
+          set-as-default: true
+          wsl-version: 2
       - run: npm run build
       - run: npm test
       - run: npm run type-check
@@ -85,6 +92,8 @@ jobs:
           wsl-version: 2
       - name: Install Arch Linux
         if: matrix.distribution == 'archlinux'
+        # The GitHub Actions shell rule does not recognize the valid pwsh shell name.
+        # eslint-disable-next-line github-actions/shell
         shell: pwsh
         run: |
           function Invoke-WslUtf16 {
@@ -128,6 +137,8 @@ jobs:
         run: npm ci
         if: steps.node-modules-cache.outputs.cache-hit != 'true'
       - name: Check selected WSL distribution
+        # The GitHub Actions shell rule does not recognize the valid pwsh shell name.
+        # eslint-disable-next-line github-actions/shell
         shell: pwsh
         run: |
           function Invoke-WslUtf16 {

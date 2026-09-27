@@ -25,6 +25,8 @@ export const test: Test = async ({ expect, Explorer, Locator, SideBar, Wsl }) =>
   await expect(varFolder).toHaveAttribute('aria-level', '1')
   await expect(logFolder).toBeHidden()
 
+  // The folder index differs between WSL distributions, so use its semantic locator.
+  // eslint-disable-next-line e2e/no-direct-click, @typescript-eslint/no-deprecated
   await varFolder.click()
 
   await expect(varFolder).toHaveAttribute('aria-expanded', 'true')
