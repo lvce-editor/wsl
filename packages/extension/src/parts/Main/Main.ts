@@ -1,6 +1,7 @@
 import { activate as activateExtensionApi, registerCommand, registerFileSystemProvider } from '@lvce-editor/api'
 import * as Connect from '../Connect/Connect.ts'
 import { fileSystem } from '../FileSystem/FileSystem.ts'
+import * as Install from '../Install/Install.ts'
 import { output } from '../Output/Output.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 import * as ShowLog from '../ShowLog/ShowLog.ts'
@@ -24,6 +25,10 @@ export const activate = async (): Promise<void> => {
     registerCommand({
       execute: Connect.connectUsingDistro,
       id: 'wsl.connectUsingDistro',
+    })
+    registerCommand({
+      execute: Install.installDistro,
+      id: 'wsl.installDistro',
     })
     registerCommand({
       execute: Connect.reopenFolder,

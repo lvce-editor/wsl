@@ -1,7 +1,17 @@
 import type { TestContext } from 'node:test'
 import assert, { rejects } from 'node:assert/strict'
 import { test } from 'node:test'
-import { getOpenExternalPath, getWslWorkingDirectory, listDistributions, parseWslUri, readDirWithFileTypes, stat } from '../src/parts/Wsl/Wsl.ts'
+import {
+  getOpenExternalPath,
+  getWslWorkingDirectory,
+  installDistribution,
+  listDistributions,
+  listOnlineDistributions,
+  parseOnlineDistributions,
+  parseWslUri,
+  readDirWithFileTypes,
+  stat,
+} from '../src/parts/Wsl/Wsl.ts'
 
 void test('rejects malformed WSL URIs before invoking WSL', async () => {
   await rejects(getOpenExternalPath('wsl:///workspace'), /WSL URI has no distribution/)
@@ -13,6 +23,38 @@ void test('preserves distribution case and decodes WSL paths exactly once', () =
     distribution: 'Ubuntu-24.04',
     path: '/My Folder/✓',
   })
+})
+
+void test('parses online distribution names separately from friendly labels', () => {
+  assert.deepStrictEqual(
+    parseOnlineDistributions(
+      "The following is a list of valid distributions that can be installed.\r\nInstall using 'wsl.exe --install <Distro>'.\r\n\r\nNAME FRIENDLY NAME\r\nUbuntu-24.04   Ubuntu 24.04 LTS\r\nkali-linux     Kali Linux Rolling\r\n",
+    ),
+    [
+      { friendlyName: 'Ubuntu 24.04 LTS', name: 'Ubuntu-24.04' },
+      { friendlyName: 'Kali Linux Rolling', name: 'kali-linux' },
+    ],
+  )
+})
+
+void test('uses the online list and passes the exact distribution name as an install argument', async () => {
+  const calls: string[][] = []
+  await listOnlineDistributions(async (args) => {
+    calls.push([...args])
+    return Buffer.from('NAME FRIENDLY NAME\nUbuntu-24.04 Ubuntu 24.04 LTS\n')
+  })
+  await installDistribution('Ubuntu-24.04', async (args) => {
+    calls.push([...args])
+    return Buffer.from('')
+  })
+  assert.deepStrictEqual(calls, [
+    ['--list', '--online'],
+    ['--install', '--distribution', 'Ubuntu-24.04', '--no-launch'],
+  ])
+})
+
+void test('rejects an empty distribution name before invoking WSL', async () => {
+  await assert.rejects(installDistribution('  '), /Expected a WSL distribution name/)
 })
 
 void test('can execute a command in the default WSL distribution', async (context: TestContext) => {
