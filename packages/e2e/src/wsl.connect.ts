@@ -79,9 +79,10 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
 
   await QuickPick.open()
   await QuickPick.setValue('>WSL: Show Log')
-  await QuickPick.selectItem('WSL: Show Log', { waitUntil: 'done' })
+  await QuickPick.selectItem('WSL: Show Log')
   const outputChannel = Locator('[name="output"]')
   const outputContent = Locator('.OutputContent')
+  await expect(outputContent).toBeVisible()
   await expect(outputChannel).toHaveValue('wsl')
   await expect(outputContent).toContainText('Starting WSL connection')
   await expect(outputContent).toContainText('Connected to WSL distribution:')
