@@ -11,7 +11,7 @@ export const test: Test = async ({ expect, Locator, QuickPick, Wsl }) => {
   const showLogCommand = Locator('.QuickPickItem', { hasText: 'WSL: Show Log' })
   await expect(connectCommand).toBeVisible()
   await expect(showLogCommand).toHaveCount(1)
-  await QuickPick.selectItem('WSL: Show Log')
+  await QuickPick.selectItem('WSL: Show Log', { waitUntil: 'done' })
 
   const outputChannel = Locator('[name="output"]')
   const outputContent = Locator('.OutputContent')
@@ -21,7 +21,7 @@ export const test: Test = async ({ expect, Locator, QuickPick, Wsl }) => {
 
   await QuickPick.open()
   await QuickPick.setValue('>WSL: Show Log')
-  await QuickPick.selectItem('WSL: Show Log')
+  await QuickPick.selectItem('WSL: Show Log', { waitUntil: 'done' })
 
   await expect(outputChannel).toHaveValue('wsl')
   await expect(outputContent).toContainText('WSL')
