@@ -170,6 +170,13 @@ jobs:
       - name: Install Playwright browser
         run: npx playwright install chromium
       - run: npm run e2e:headless
+      - name: Upload renderer trace
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: renderer-trace-${{ matrix.distribution }}
+          path: packages/e2e/renderer-worker-traces/**
+          if-no-files-found: warn
 
   wsl:
     runs-on: ubuntu-24.04

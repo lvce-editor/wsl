@@ -73,6 +73,7 @@ jobs:
       - name: Install Playwright browser
         run: npx playwright install chromium
       - name: Run existing e2e suite
+        # eslint-disable-next-line github-actions/shell
         shell: pwsh
         run: |
           npm run e2e:headless 2>&1 | Tee-Object -FilePath e2e-attempt.log
@@ -80,7 +81,7 @@ jobs:
 
       - name: Upload e2e artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kali-e2e-${{ matrix.attempt }}
           path: |

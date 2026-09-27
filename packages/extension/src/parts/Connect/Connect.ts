@@ -22,8 +22,8 @@ const toWslWorkspaceUri = (distribution: string, path: string): string => {
 interface ConnectDependencies {
   readonly execute: typeof executeCommand
   readonly invoke: typeof Rpc.invoke
-  readonly logError: typeof output.appendLine
   readonly log: typeof output.appendLine
+  readonly logError: typeof output.appendLine
   readonly now: () => Date
   readonly showError: typeof showError
   readonly showPick: typeof showQuickPick
@@ -32,8 +32,8 @@ interface ConnectDependencies {
 const defaultDependencies: ConnectDependencies = {
   execute: executeCommand,
   invoke: Rpc.invoke,
-  logError: (message) => output.appendLine(message),
   log: (message) => output.appendLine(message),
+  logError: (message) => output.appendLine(message),
   now: () => new Date(),
   showError,
   showPick: showQuickPick,

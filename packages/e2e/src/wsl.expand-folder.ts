@@ -31,13 +31,13 @@ export const test: Test = async ({ Command, ComponentState, expect, Explorer, Lo
     const component = await ComponentState.getComponent('Explorer')
     const state = await ComponentState.getState<Record<string, unknown>>(component.uid)
     const details = {
-      root: state.root,
+      deltaY: state.deltaY,
       height: state.height,
       itemHeight: state.itemHeight,
-      deltaY: state.deltaY,
-      minLineY: state.minLineY,
-      maxLineY: state.maxLineY,
       items: state.items,
+      maxLineY: state.maxLineY,
+      minLineY: state.minLineY,
+      root: state.root,
     }
     throw new Error(`${String(error)}; Explorer state: ${JSON.stringify(details)}`)
   }
