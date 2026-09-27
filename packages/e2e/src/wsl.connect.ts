@@ -70,11 +70,17 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
     await Explorer.refresh()
     try {
       await expect(bootEntry).toBeVisible()
-      return
+      break
     } catch {
       // The WSL command runs in a separate process; refresh until its workspace update is rendered.
     }
   }
-  await Explorer.expandAll()
   await expect(bootEntry).toBeVisible()
+
+  await Command.execute('wsl.showLog')
+  const outputChannel = Locator('[name="output"]')
+  const outputContent = Locator('.OutputContent')
+  await expect(outputChannel).toHaveValue('wsl')
+  await expect(outputContent).toContainText('Starting WSL connection')
+  await expect(outputContent).toContainText('Connected to WSL distribution:')
 }

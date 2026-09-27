@@ -26,6 +26,8 @@ interface ConnectDependencies {
   readonly execute: typeof executeCommand
   readonly invoke: typeof Rpc.invoke
   readonly logError: typeof output.appendLine
+  readonly log: typeof output.appendLine
+  readonly now: () => Date
   readonly showError: typeof showError
   readonly showPick: typeof showQuickPick
 }
@@ -34,8 +36,22 @@ const defaultDependencies: ConnectDependencies = {
   execute: executeCommand,
   invoke: Rpc.invoke,
   logError: (message) => output.appendLine(message),
+  log: (message) => output.appendLine(message),
+  now: () => new Date(),
   showError,
   showPick: showQuickPick,
+}
+
+const writeLog = async (message: string, dependencies: ConnectDependencies): Promise<void> => {
+  try {
+    await dependencies.log(`[${dependencies.now().toISOString()}] ${message}`)
+  } catch {
+    // Logging must not prevent the connection attempt or hide its original error.
+  }
+}
+
+const getErrorDetails = (error: unknown): string => {
+  return error instanceof Error ? (error.stack ?? error.message) : String(error)
 }
 
 const getDistributions = async (invoke: ConnectDependencies['invoke']): Promise<string[]> => {
@@ -53,22 +69,34 @@ const connectToDistribution = async (distribution: string, dependencies: Connect
 }
 
 export const connect = async (dependencies: ConnectDependencies = defaultDependencies): Promise<void> => {
+  await writeLog('Starting WSL connection', dependencies)
   try {
+    await writeLog('Discovering WSL distributions', dependencies)
     const distributions = await getDistributions(dependencies.invoke)
+    await writeLog(`Found ${distributions.length} WSL distribution${distributions.length === 1 ? '' : 's'}`, dependencies)
     if (distributions.length === 0) {
+      await writeLog('No WSL distributions are installed', dependencies)
       await dependencies.showError('No WSL distributions are installed.')
       return
     }
-    await connectToDistribution(distributions[0], dependencies)
+    const distribution = distributions[0]
+    await writeLog(`Connecting to WSL distribution: ${distribution}`, dependencies)
+    await connectToDistribution(distribution, dependencies)
+    await writeLog(`Connected to WSL distribution: ${distribution}`, dependencies)
   } catch (error) {
+    await writeLog(`Failed to connect to WSL: ${getErrorDetails(error)}`, dependencies)
     await dependencies.showError(`Failed to connect to WSL: ${getErrorMessage(error)}`)
   }
 }
 
 export const connectUsingDistro = async (dependencies: ConnectDependencies = defaultDependencies): Promise<void> => {
+  await writeLog('Starting WSL connection', dependencies)
   try {
+    await writeLog('Discovering WSL distributions', dependencies)
     const distributions = await getDistributions(dependencies.invoke)
+    await writeLog(`Found ${distributions.length} WSL distribution${distributions.length === 1 ? '' : 's'}`, dependencies)
     if (distributions.length === 0) {
+      await writeLog('No WSL distributions are installed', dependencies)
       await dependencies.showError('No WSL distributions are installed.')
       return
     }
@@ -81,10 +109,14 @@ export const connectUsingDistro = async (dependencies: ConnectDependencies = def
       placeholder: 'Select WSL distro',
     })
     if (typeof selected !== 'string') {
+      await writeLog('WSL distribution selection cancelled', dependencies)
       return
     }
+    await writeLog(`Connecting to WSL distribution: ${selected}`, dependencies)
     await connectToDistribution(selected, dependencies)
+    await writeLog(`Connected to WSL distribution: ${selected}`, dependencies)
   } catch (error) {
+    await writeLog(`Failed to connect to WSL: ${getErrorDetails(error)}`, dependencies)
     await dependencies.showError(`Failed to connect to WSL: ${getErrorMessage(error)}`)
   }
 }
