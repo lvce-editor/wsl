@@ -16,6 +16,36 @@ const run = async (args: readonly string[]): Promise<Buffer> => {
   return result.stdout
 }
 
+export interface OnlineDistribution {
+  readonly friendlyName: string
+  readonly name: string
+}
+
+export const parseOnlineDistributions = (value: string): readonly OnlineDistribution[] => {
+  const distributions: OnlineDistribution[] = []
+  let foundHeader = false
+  for (const line of value.split(/\r?\n/)) {
+    const trimmed = line.trim()
+    if (!trimmed) {
+      continue
+    }
+    if (/^NAME\s+FRIENDLY NAME$/i.test(trimmed)) {
+      foundHeader = true
+      continue
+    }
+    if (!foundHeader) {
+      continue
+    }
+    const [name, ...friendlyNameParts] = trimmed.split(/\s+/)
+    const friendlyName = friendlyNameParts.join(' ')
+    if (!name || !friendlyName) {
+      continue
+    }
+    distributions.push({ friendlyName, name })
+  }
+  return distributions
+}
+
 const decode = (value: Buffer): string => {
   if (value.length >= 2 && value[1] === 0) {
     return value.toString('utf16le')
@@ -58,6 +88,17 @@ export const listDistributions = async (): Promise<readonly string[]> => {
     .split(/\r?\n/)
     .map((line) => line.trim())
     .filter(Boolean)
+}
+
+export const listOnlineDistributions = async (runCommand: typeof run = run): Promise<readonly OnlineDistribution[]> => {
+  return parseOnlineDistributions(decode(await runCommand(['--list', '--online'])))
+}
+
+export const installDistribution = async (distribution: string, runCommand: typeof run = run): Promise<void> => {
+  if (!distribution.trim()) {
+    throw new Error('Expected a WSL distribution name')
+  }
+  await runCommand(['--install', '--distribution', distribution, '--no-launch'])
 }
 
 export const connect = async (uri: string): Promise<{ readonly distribution: string }> => {
