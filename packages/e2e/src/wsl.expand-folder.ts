@@ -2,9 +2,11 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.expand-folder'
 
-export const test: Test = async ({ expect, Explorer, Locator, SideBar, Wsl }) => {
+export const test: Test = async ({ expect, Explorer, Locator, Panel, SideBar, Wsl }) => {
   await Wsl.enableExtension()
   await Wsl.connect()
+  // The preceding connection test opens Output; restore the full Explorer viewport.
+  await Panel.hide()
   await SideBar.open('Explorer')
   await Explorer.collapseAll()
 
