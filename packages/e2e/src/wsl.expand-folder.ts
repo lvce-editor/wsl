@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.expand-folder'
 
-export const test: Test = async ({ expect, Explorer, Locator, Panel, SideBar, Wsl }) => {
+export const test: Test = async ({ Command, expect, Explorer, Locator, Panel, SideBar, Wsl }) => {
   await Wsl.enableExtension()
   await Wsl.connect()
   // The preceding connection test opens Output; restore the full Explorer viewport.
@@ -14,6 +14,9 @@ export const test: Test = async ({ expect, Explorer, Locator, Panel, SideBar, Ws
   const logFolder = Locator('.Explorer .TreeItem[aria-label="log"]')
   for (let i = 0; i < 8; i++) {
     await Explorer.refresh()
+    const workspaceUri = await Command.execute('Workspace.getUri')
+    // Root listings vary by distro; reveal the target even when it is virtualized.
+    await Explorer.reveal(`${workspaceUri.replace(/\/$/, '')}/var`)
     try {
       await expect(varFolder).toBeVisible()
       break
@@ -30,6 +33,8 @@ export const test: Test = async ({ expect, Explorer, Locator, Panel, SideBar, Ws
   await varFolder.click()
 
   await expect(varFolder).toHaveAttribute('aria-expanded', 'true')
+  const workspaceUri = await Command.execute('Workspace.getUri')
+  await Explorer.reveal(`${workspaceUri.replace(/\/$/, '')}/var/log`)
   await expect(logFolder).toBeVisible()
   await expect(logFolder).toHaveAttribute('aria-level', '2')
 }
