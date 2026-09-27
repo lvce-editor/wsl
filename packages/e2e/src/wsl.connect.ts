@@ -79,7 +79,7 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
 
   await QuickPick.open()
   await QuickPick.setValue('>WSL: Show Log')
-  await QuickPick.selectItem('WSL: Show Log')
+  await QuickPick.selectItem('WSL: Show Log', { waitUntil: 'done' })
   const outputChannel = Locator('[name="output"]')
   const outputContent = Locator('.OutputContent')
   await expect(outputChannel).toHaveValue('wsl')
