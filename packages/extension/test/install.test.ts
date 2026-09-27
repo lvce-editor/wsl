@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
+import { test } from '@jest/globals'
 import { installDistro } from '../src/parts/Install/Install.ts'
 
 const createDependencies = (

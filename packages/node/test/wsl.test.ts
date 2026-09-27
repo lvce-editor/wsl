@@ -1,6 +1,5 @@
-import type { TestContext } from 'node:test'
 import assert, { rejects } from 'node:assert/strict'
-import { test } from 'node:test'
+import { test } from '@jest/globals'
 import {
   getOpenExternalPath,
   getWslWorkingDirectory,
@@ -57,49 +56,25 @@ void test('rejects an empty distribution name before invoking WSL', async () => 
   await assert.rejects(installDistribution('  '), /Expected a WSL distribution name/)
 })
 
-void test('can execute a command in the default WSL distribution', async (context: TestContext) => {
-  if (process.platform !== 'win32') {
-    context.skip('WSL smoke tests run on Windows')
-    return
-  }
-  try {
-    const workingDirectory = await getWslWorkingDirectory()
-    assert.match(workingDirectory, /^\//)
-  } catch (error) {
-    if (process.env.CI) {
-      throw error
-    }
-    context.skip(`WSL is unavailable: ${error instanceof Error ? error.message : String(error)}`)
-  }
+const testWsl = process.platform === 'win32' ? test : test.skip
+
+void testWsl('can execute a command in the default WSL distribution', async () => {
+  const workingDirectory = await getWslWorkingDirectory()
+  assert.match(workingDirectory, /^\//)
 })
 
-void test('can list the root of the first WSL distribution', async (context: TestContext) => {
-  if (process.platform !== 'win32') {
-    context.skip('WSL smoke tests run on Windows')
-    return
-  }
-  try {
-    const distributions = await listDistributions()
-    const distribution = distributions[0]
-    assert.ok(distribution)
-    const uri = `wsl://${encodeURIComponent(distribution)}/`
-    assert.equal(await stat(uri), 3)
-    const entries = await readDirWithFileTypes(uri)
-    assert.ok(entries.length > 0)
-    assert.ok(entries.every((entry) => entry.name.length > 0))
-  } catch (error) {
-    if (process.env.CI) {
-      throw error
-    }
-    context.skip(`WSL is unavailable: ${error instanceof Error ? error.message : String(error)}`)
-  }
+void testWsl('can list the root of the first WSL distribution', async () => {
+  const distributions = await listDistributions()
+  const distribution = distributions[0]
+  assert.ok(distribution)
+  const uri = `wsl://${encodeURIComponent(distribution)}/`
+  assert.equal(await stat(uri), 3)
+  const entries = await readDirWithFileTypes(uri)
+  assert.ok(entries.length > 0)
+  assert.ok(entries.every((entry) => entry.name.length > 0))
 })
 
-void test('converts WSL URIs to Windows UNC paths without losing distribution or path characters', async (context: TestContext) => {
-  if (process.platform !== 'win32') {
-    context.skip('WSL smoke tests run on Windows')
-    return
-  }
+void testWsl('converts WSL URIs to Windows UNC paths without losing distribution or path characters', async () => {
   const distributions = await listDistributions()
   const distribution = distributions[0]
   assert.ok(distribution)

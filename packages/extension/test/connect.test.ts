@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
+import { test } from '@jest/globals'
 import { connect, connectUsingDistro, reopenFolder } from '../src/parts/Connect/Connect.ts'
 
 const createDependencies = (
