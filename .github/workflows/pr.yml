@@ -73,24 +73,10 @@ jobs:
         run: npm test --workspace=@lvce-editor/wsl-server
       - name: Install Playwright browser
         run: npx playwright install chromium
-      - name: Check out Explorer fix
-        uses: actions/checkout@v7
-        with:
-          repository: lvce-editor/explorer-view
-          ref: 8605ac455a868b275af03d8ac04380034e89abc9
-          path: .tmp/explorer-fix
-      - name: Build Explorer fix
-        working-directory: .tmp/explorer-fix
-        run: |
-          npm ci
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          npm run build
-          exit $LASTEXITCODE
       - name: Run existing e2e suite
         # eslint-disable-next-line github-actions/shell
         shell: pwsh
         run: |
-          $env:WSL_TEST_EXPLORER_PATH = (Resolve-Path .tmp/explorer-fix/.tmp/dist).Path
           npm run e2e:headless 2>&1 | Tee-Object -FilePath e2e-attempt.log
           exit $LASTEXITCODE
 
