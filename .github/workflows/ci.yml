@@ -9,8 +9,12 @@ on:
       - main
 
 jobs:
-  node:
-    runs-on: ubuntu-24.04
+  node_platforms:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2025]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
@@ -32,9 +36,26 @@ jobs:
       - run: npm run build
       - run: npm test
       - run: npm run type-check
-      - name: Install Playwright browser
+      - run: npm run lint
+      - name: Install Playwright browser and system dependencies
+        if: runner.os == 'Linux'
         run: npx playwright install --with-deps chromium
-      - run: npm run e2e:headless --workspace=@lvce-editor/wsl-e2e -- --filter=wsl.quickpick
+      - name: Run Linux quickpick e2e smoke tests
+        if: runner.os == 'Linux'
+        run: npm run e2e:headless --workspace=@lvce-editor/wsl-e2e -- --filter=wsl.quickpick
+
+  node:
+    runs-on: ubuntu-24.04
+    if: always()
+    needs:
+      - node_platforms
+    steps:
+      - name: Require every platform validation job to pass
+        run: |
+          if [ "${{ needs.node_platforms.result }}" != "success" ]; then
+            echo 'One or more platform validation jobs failed or were cancelled.'
+            exit 1
+          fi
 
   wsl_distributions:
     name: WSL (${{ matrix.distribution }})
