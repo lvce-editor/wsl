@@ -40,7 +40,9 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
   const terminalDirectory = await Command.execute('PlatformPaths.getTmpDir')
   await Workspace.setUri(terminalDirectory)
   await Command.execute('Layout.showPanel', 'Problems')
-  await Command.execute('Layout.showPanel', 'Terminals')
+  // Selecting this tab starts and focuses the native terminal; Layout.showPanel alone does not.
+  // eslint-disable-next-line e2e/no-direct-click, @typescript-eslint/no-deprecated
+  await Locator('.PanelTab[name="Terminals"]').click()
   const terminal = Locator('.XtermTerminal')
   const terminalRows = terminal.locator('.xterm-rows')
   const terminalInput = terminal.locator('.xterm-helper-textarea')
