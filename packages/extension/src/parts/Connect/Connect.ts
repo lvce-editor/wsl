@@ -1,12 +1,9 @@
-import { executeCommand, showQuickPick } from '@lvce-editor/api'
+import { executeCommand, showErrorMessage, showQuickPick } from '@lvce-editor/api'
 import { output } from '../Output/Output.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 
 const showError = async (message: string): Promise<void> => {
-  await executeCommand('ConfirmPrompt.showErrorMessage', {
-    message,
-    title: 'WSL',
-  })
+  await showErrorMessage(message, { title: 'WSL' })
 }
 
 const getErrorMessage = (error: unknown): string => {
