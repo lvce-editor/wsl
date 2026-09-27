@@ -37,7 +37,9 @@ export const test: Test = async ({ Command, expect, Explorer, FileSystem, Locato
     throw new Error(`WSL workspace ${workspaceUri} root did not contain /boot`)
   }
 
-  await Command.execute('wsl.showLog')
+  await QuickPick.open()
+  await QuickPick.setValue('>WSL: Show Log')
+  await QuickPick.selectItem('WSL: Show Log')
   const outputChannel = Locator('[name="output"]')
   const outputContent = Locator('.OutputContent')
   await expect(outputChannel).toHaveValue('wsl')

@@ -35,7 +35,7 @@ const waitForText = async (expect: TestApi['expect'], locator: LocatorType, text
   await expect(locator).toContainText(text)
 }
 
-export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator, SideBar, Workspace, Wsl }) => {
+export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator, QuickPick, SideBar, Workspace, Wsl }) => {
   // A native shell needs a filesystem path, not the default test-page or memfs URI.
   const terminalDirectory = await Command.execute('PlatformPaths.getTmpDir')
   await Workspace.setPath(terminalDirectory)
@@ -77,7 +77,9 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
   }
   await expect(bootEntry).toBeVisible()
 
-  await Command.execute('wsl.showLog')
+  await QuickPick.open()
+  await QuickPick.setValue('>WSL: Show Log')
+  await QuickPick.selectItem('WSL: Show Log')
   const outputChannel = Locator('[name="output"]')
   const outputContent = Locator('.OutputContent')
   await expect(outputChannel).toHaveValue('wsl')

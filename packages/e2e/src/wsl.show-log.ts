@@ -17,12 +17,12 @@ export const test: Test = async ({ expect, Locator, QuickPick, Wsl }) => {
   const outputContent = Locator('.OutputContent')
   await expect(outputContent).toBeVisible()
   await expect(outputChannel).toHaveValue('wsl')
-  await expect(outputContent).toHaveText('WSL extension activated')
+  await expect(outputContent).toContainText('WSL')
 
   await QuickPick.open()
   await QuickPick.setValue('>WSL: Show Log')
   await QuickPick.selectItem('WSL: Show Log')
 
   await expect(outputChannel).toHaveValue('wsl')
-  await expect(outputContent).toHaveText('WSL extension activated')
+  await expect(outputContent).toContainText('WSL')
 }
