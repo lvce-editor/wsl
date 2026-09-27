@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.show-log'
 
-export const test: Test = async ({ expect, Locator, QuickPick, Wsl }) => {
+export const test: Test = async ({ Command, Workspace, expect, Locator, QuickPick, Wsl }) => {
   await Wsl.enableExtension()
 
   await QuickPick.open()
@@ -19,10 +19,14 @@ export const test: Test = async ({ expect, Locator, QuickPick, Wsl }) => {
   await expect(outputChannel).toHaveValue('wsl')
   await expect(outputContent).toContainText('WSL')
 
+  // Reopening Output must keep its worker connections alive across workspace changes.
+  const directory = await Command.execute('PlatformPaths.getTmpDir')
+  await Workspace.setPath(directory)
   await QuickPick.open()
   await QuickPick.setValue('>WSL: Show Log')
   await QuickPick.selectItem('WSL: Show Log', { waitUntil: 'done' })
 
+  await expect(outputContent).toBeVisible()
   await expect(outputChannel).toHaveValue('wsl')
   await expect(outputContent).toContainText('WSL')
 }

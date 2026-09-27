@@ -137,18 +137,7 @@ jobs:
         run: npm test --workspace=@lvce-editor/wsl-server
       - name: Install Playwright browser
         run: npx playwright install chromium
-      - name: Diagnose WSL scenarios in fresh pages
-        continue-on-error: true
-        run: npm run e2e:headless --workspace=@lvce-editor/wsl-e2e -- --no-reuse-page --trace-renderer-worker
-      - name: Run shared-page WSL acceptance suite
-        run: npm run e2e:headless --workspace=@lvce-editor/wsl-e2e -- --trace-renderer-worker
-      - name: Preserve WSL renderer diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: wsl-renderer-traces-${{ matrix.distribution }}
-          path: packages/e2e/renderer-worker-traces/
-          if-no-files-found: error
+      - run: npm run e2e:headless
 
   wsl:
     runs-on: ubuntu-24.04
