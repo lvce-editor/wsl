@@ -6,8 +6,8 @@
   "type": "module",
   "main": "src/wslNodeMain.ts",
   "scripts": {
-    "test": "node --test --import tsx test/**/*.test.ts",
-    "test:wsl": "node --import tsx test/wsl.test.ts",
+    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config ../../package.json --runInBand --runTestsByPath test/wsl.test.ts",
+    "test:wsl": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config ../../package.json --runInBand --runTestsByPath test/wsl.test.ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "@types/node": "^25.0.1",
-    "tsx": "^4.20.6",
     "typescript": "^6.0.3"
   }
 }

@@ -1,5 +1,5 @@
+import { test } from '@jest/globals'
 import assert from 'node:assert/strict'
-import { test } from 'node:test'
 import { connect, connectUsingDistro, reopenFolder } from '../src/parts/Connect/Connect.ts'
 
 const createDependencies = (
@@ -35,11 +35,11 @@ const createDependencies = (
       }
       return undefined
     },
-    logError: async (): Promise<void> => {},
     log: async (message: string): Promise<void> => {
       logs.push(message)
     },
-    now: () => new Date('2026-09-27T12:34:56.789Z'),
+    logError: async (): Promise<void> => {},
+    now: (): Date => new Date('2026-09-27T12:34:56.789Z'),
     showError: async (message: string): Promise<void> => {
       errors.push(message)
     },

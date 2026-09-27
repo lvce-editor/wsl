@@ -25,6 +25,7 @@
   "activation": [
     "onCommand:wsl.connect",
     "onCommand:wsl.connectUsingDistro",
+    "onCommand:wsl.installDistro",
     "onCommand:wsl.reopenFolder",
     "onCommand:wsl.showLog",
     "onFileSystem:wsl"
@@ -37,6 +38,10 @@
     {
       "id": "wsl.connectUsingDistro",
       "label": "WSL: Connect to WSL using Distro..."
+    },
+    {
+      "id": "wsl.installDistro",
+      "label": "WSL: Install New WSL Distro..."
     },
     {
       "id": "wsl.reopenFolder",

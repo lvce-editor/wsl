@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.show-log'
 
-export const test: Test = async ({ Command, Workspace, expect, Locator, QuickPick, Wsl }) => {
+export const test: Test = async ({ Command, expect, Locator, QuickPick, Workspace, Wsl }) => {
   await Wsl.enableExtension()
 
   await QuickPick.open()
@@ -21,6 +21,8 @@ export const test: Test = async ({ Command, Workspace, expect, Locator, QuickPic
 
   // Reopening Output must keep its worker connections alive across workspace changes.
   const directory = await Command.execute('PlatformPaths.getTmpDir')
+  // Workspace.setPath converts the native temporary path to a file URI.
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   await Workspace.setPath(directory)
   await QuickPick.open()
   await QuickPick.setValue('>WSL: Show Log')

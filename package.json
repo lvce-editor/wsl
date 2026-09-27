@@ -15,16 +15,45 @@
     "e2e:headless": "npm run e2e:headless --workspace=@lvce-editor/wsl-e2e",
     "test:wsl": "npm run test:wsl --workspace=@lvce-editor/wsl-node",
     "type-check": "npm run type-check --workspace=@lvce-editor/wsl-node && npm run type-check --workspace=@lvce-editor/wsl-extension && npm run type-check --workspace=build && npm run type-check --workspace=@lvce-editor/wsl-e2e",
-    "lint": "eslint .",
+    "lint": "eslint . && knip --no-config-hints",
     "format": "prettier --write ."
+  },
+  "jest": {
+    "injectGlobals": false,
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "useESM": true,
+          "tsconfig": {
+            "isolatedModules": true
+          }
+        }
+      ]
+    },
+    "testMatch": [
+      "**/test/**/*.test.ts",
+      "**/test/**/*.test.js"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/.tmp/"
+    ],
+    "testTimeout": 30000
   },
   "engines": {
     "node": ">=24"
   },
   "devDependencies": {
+    "@jest/globals": "^30.5.2",
     "@lvce-editor/eslint-config": "^18.13.0",
     "eslint": "^10.9.1",
+    "jest": "^30.5.2",
+    "knip": "^6.37.0",
     "prettier": "^3.9.6",
+    "ts-jest": "^29.4.14",
     "typescript": "^6.0.3"
   },
   "prettier": {

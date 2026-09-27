@@ -1,19 +1,16 @@
-import { executeCommand, showQuickPick } from '@lvce-editor/api'
+import { executeCommand, showErrorMessage, showQuickPick } from '@lvce-editor/api'
 import { output } from '../Output/Output.ts'
 import * as Rpc from '../Rpc/Rpc.ts'
 
 const showError = async (message: string): Promise<void> => {
-  await executeCommand('ConfirmPrompt.showErrorMessage', {
-    message,
-    title: 'WSL',
-  })
+  await showErrorMessage(message, { title: 'WSL' })
 }
 
 const getErrorMessage = (error: unknown): string => {
   return error instanceof Error ? error.message : String(error)
 }
 
-export const toWorkspaceUri = (distribution: string): string => {
+const toWorkspaceUri = (distribution: string): string => {
   return `wsl://${encodeURIComponent(distribution)}/`
 }
 
@@ -25,8 +22,8 @@ const toWslWorkspaceUri = (distribution: string, path: string): string => {
 interface ConnectDependencies {
   readonly execute: typeof executeCommand
   readonly invoke: typeof Rpc.invoke
-  readonly logError: typeof output.appendLine
   readonly log: typeof output.appendLine
+  readonly logError: typeof output.appendLine
   readonly now: () => Date
   readonly showError: typeof showError
   readonly showPick: typeof showQuickPick
@@ -35,8 +32,8 @@ interface ConnectDependencies {
 const defaultDependencies: ConnectDependencies = {
   execute: executeCommand,
   invoke: Rpc.invoke,
-  logError: (message) => output.appendLine(message),
   log: (message) => output.appendLine(message),
+  logError: (message) => output.appendLine(message),
   now: () => new Date(),
   showError,
   showPick: showQuickPick,

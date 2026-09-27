@@ -36,15 +36,19 @@ const waitForText = async (expect: TestApi['expect'], locator: LocatorType, text
 }
 
 export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator, QuickPick, SideBar, Workspace, Wsl }) => {
-  // A native shell needs a filesystem path, not the default test-page or memfs URI.
+  // Workspace.setPath converts this native filesystem path to a file URI for the terminal.
   const terminalDirectory = await Command.execute('PlatformPaths.getTmpDir')
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   await Workspace.setPath(terminalDirectory)
   await Command.execute('Layout.showPanel', 'Problems')
+  // Selecting this tab starts and focuses the native terminal; Layout.showPanel alone does not.
+  // eslint-disable-next-line e2e/no-direct-click, @typescript-eslint/no-deprecated
   await Locator('.PanelTab[name="Terminals"]').click()
   const terminal = Locator('.XtermTerminal')
   const terminalRows = terminal.locator('.xterm-rows')
+  const terminalInput = terminal.locator('.xterm-helper-textarea')
   await expect(terminal).toBeVisible()
-  await expect(terminal.locator('.xterm-helper-textarea')).toBeFocused()
+  await expect(terminalInput).toBeFocused()
   await waitForText(expect, terminalRows, 'PS ')
   // The computed result is absent from the input, so echoed keystrokes cannot pass.
   await runTerminalCommand(KeyBoard, '123456789 -band 65535')

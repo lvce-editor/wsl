@@ -2,7 +2,7 @@ import type { Test } from '@lvce-editor/test-with-playwright'
 
 export const name = 'wsl.expand-folder'
 
-export const test: Test = async ({ Command, ComponentState, expect, Explorer, Locator, Panel, SideBar, Wsl }) => {
+export const test: Test = async ({ Command, expect, Explorer, Locator, Panel, SideBar, Wsl }) => {
   await Wsl.enableExtension()
   await Wsl.connect()
   // The preceding connection test opens Output; restore the full Explorer viewport.
@@ -25,26 +25,13 @@ export const test: Test = async ({ Command, ComponentState, expect, Explorer, Lo
     }
   }
 
-  try {
-    await expect(varFolder).toBeVisible()
-  } catch (error) {
-    const component = await ComponentState.getComponent('Explorer')
-    const state = await ComponentState.getState<Record<string, unknown>>(component.uid)
-    const details = {
-      root: state.root,
-      height: state.height,
-      itemHeight: state.itemHeight,
-      deltaY: state.deltaY,
-      minLineY: state.minLineY,
-      maxLineY: state.maxLineY,
-      items: state.items,
-    }
-    throw new Error(`${String(error)}; Explorer state: ${JSON.stringify(details)}`)
-  }
+  await expect(varFolder).toBeVisible()
   await expect(varFolder).toHaveAttribute('aria-expanded', 'false')
   await expect(varFolder).toHaveAttribute('aria-level', '1')
   await expect(logFolder).toBeHidden()
 
+  // The folder index differs between WSL distributions, so use its semantic locator.
+  // eslint-disable-next-line e2e/no-direct-click, @typescript-eslint/no-deprecated
   await varFolder.click()
 
   await expect(varFolder).toHaveAttribute('aria-expanded', 'true')

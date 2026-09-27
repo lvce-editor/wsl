@@ -6,11 +6,11 @@
   "type": "module",
   "main": "src/wslWorkerMain.ts",
   "scripts": {
-    "test": "node --import tsx --test test/**/*.test.ts",
+    "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config ../../package.json --runInBand --runTestsByPath test/connect.test.ts test/install.test.ts",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@lvce-editor/api": "^9.35.4",
+    "@lvce-editor/api": "^9.36.0",
     "typescript": "^6.0.3"
   }
 }
