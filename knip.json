@@ -1,0 +1,28 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "project": ["*.js"]
+    },
+    "packages/build": {
+      "entry": ["src/**/*.ts"],
+      "project": ["src/**/*.ts"]
+    },
+    "packages/e2e": {
+      "entry": ["e2e.config.js", "src/**/*.ts"],
+      "project": ["*.js", "src/**/*.ts"]
+    },
+    "packages/extension": {
+      "entry": ["src/wslWorkerMain.ts", "src/parts/Main/Main.ts", "test/**/*.test.ts"],
+      "project": ["src/**/*.ts", "test/**/*.ts"]
+    },
+    "packages/node": {
+      "entry": ["src/wslNodeMain.ts", "test/**/*.test.ts"],
+      "project": ["src/**/*.ts", "test/**/*.ts"]
+    },
+    "packages/server": {
+      "entry": ["src/server.js", "test/**/*.js"],
+      "project": ["src/**/*.js", "test/**/*.js"]
+    }
+  }
+}

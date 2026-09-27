@@ -13,7 +13,7 @@ const getErrorMessage = (error: unknown): string => {
   return error instanceof Error ? error.message : String(error)
 }
 
-export const toWorkspaceUri = (distribution: string): string => {
+const toWorkspaceUri = (distribution: string): string => {
   return `wsl://${encodeURIComponent(distribution)}/`
 }
 
