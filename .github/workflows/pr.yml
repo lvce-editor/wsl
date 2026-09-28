@@ -84,7 +84,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: ubuntu-e2e-${{ matrix.attempt }}
+          name: e2e-ubuntu-${{ matrix.attempt }}
           path: |
             e2e-attempt.log
             packages/e2e/screenshots/**
