@@ -8,7 +8,7 @@
     "test": "node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --config ../../package.json --runInBand --runTestsByPath test/terminal.test.js"
   },
   "dependencies": {
-    "@lvce-editor/server": "0.117.10",
+    "@lvce-editor/server": "0.121.1",
     "node-pty": "1.1.0-beta34"
   }
 }
