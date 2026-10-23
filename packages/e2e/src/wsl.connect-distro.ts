@@ -36,4 +36,14 @@ export const test: Test = async ({ Command, expect, Explorer, FileSystem, Locato
   if (entries.every((entry: { readonly name: string }) => entry.name !== 'boot')) {
     throw new Error(`WSL workspace ${workspaceUri} root did not contain /boot`)
   }
+
+  await QuickPick.open()
+  await QuickPick.setValue('>WSL: Show Log')
+  await QuickPick.selectItem('WSL: Show Log', { waitUntil: 'done' })
+  const outputChannel = Locator('[name="output"]')
+  const outputContent = Locator('.OutputContent')
+  await expect(outputContent).toBeVisible()
+  await expect(outputChannel).toHaveValue('wsl')
+  await expect(outputContent).toContainText('Starting WSL connection')
+  await expect(outputContent).toContainText('Connected to WSL distribution:')
 }

@@ -9,10 +9,12 @@ const createDependencies = (
 ): {
   readonly dependencies: NonNullable<Parameters<typeof connectUsingDistro>[0]>
   readonly errors: string[]
+  readonly logs: string[]
   readonly calls: Array<{ readonly method: string; readonly params: readonly unknown[] }>
   readonly items: Array<{ readonly label: string; readonly value: unknown }>
 } => {
   const errors: string[] = []
+  const logs: string[] = []
   const calls: Array<{ readonly method: string; readonly params: readonly unknown[] }> = []
   const items: Array<{ readonly label: string; readonly value: unknown }> = []
   const dependencies = {
@@ -33,7 +35,11 @@ const createDependencies = (
       }
       return undefined
     },
+    log: async (message: string): Promise<void> => {
+      logs.push(message)
+    },
     logError: async (): Promise<void> => {},
+    now: (): Date => new Date('2026-09-27T12:34:56.789Z'),
     showError: async (message: string): Promise<void> => {
       errors.push(message)
     },
@@ -42,11 +48,35 @@ const createDependencies = (
       return selected
     },
   }
-  return { calls, dependencies, errors, items }
+  return { calls, dependencies, errors, items, logs }
 }
 
-test('connects the selected non-first distribution', async (): Promise<void> => {
-  const { calls, dependencies, errors, items } = createDependencies(['Ubuntu', 'Debian'], 'Debian')
+test('logs timestamped progress for a successful connection', async (): Promise<void> => {
+  const { dependencies, logs } = createDependencies(['Ubuntu'])
+
+  await connect(dependencies)
+
+  assert.deepEqual(logs, [
+    '[2026-09-27T12:34:56.789Z] Starting WSL connection',
+    '[2026-09-27T12:34:56.789Z] Discovering WSL distributions',
+    '[2026-09-27T12:34:56.789Z] Found 1 WSL distribution',
+    '[2026-09-27T12:34:56.789Z] Connecting to WSL distribution: Ubuntu',
+    '[2026-09-27T12:34:56.789Z] Connected to WSL distribution: Ubuntu',
+  ])
+})
+
+test('reuses the output logger across repeated connection attempts', async (): Promise<void> => {
+  const { dependencies, logs } = createDependencies(['Ubuntu'])
+
+  await connect(dependencies)
+  await connect(dependencies)
+
+  assert.equal(logs.filter((line) => line.endsWith('Starting WSL connection')).length, 2)
+  assert.equal(logs.filter((line) => line.endsWith('Connected to WSL distribution: Ubuntu')).length, 2)
+})
+
+test('connects and logs the selected non-first distribution', async (): Promise<void> => {
+  const { calls, dependencies, errors, items, logs } = createDependencies(['Ubuntu', 'Debian'], 'Debian')
 
   await connectUsingDistro(dependencies)
 
@@ -61,15 +91,18 @@ test('connects the selected non-first distribution', async (): Promise<void> => 
     { method: 'Workspace.setUri', params: ['wsl://Debian/'] },
   ])
   assert.deepEqual(errors, [])
+  assert.equal(logs.at(-2), '[2026-09-27T12:34:56.789Z] Connecting to WSL distribution: Debian')
+  assert.equal(logs.at(-1), '[2026-09-27T12:34:56.789Z] Connected to WSL distribution: Debian')
 })
 
 test('does not change the workspace when the picker is cancelled', async (): Promise<void> => {
-  const { calls, dependencies, errors } = createDependencies(['Ubuntu', 'Debian'], null)
+  const { calls, dependencies, errors, logs } = createDependencies(['Ubuntu', 'Debian'], null)
 
   await connectUsingDistro(dependencies)
 
   assert.deepEqual(calls, [{ method: 'Wsl.listDistributions', params: [] }])
   assert.deepEqual(errors, [])
+  assert.equal(logs.at(-1), '[2026-09-27T12:34:56.789Z] WSL distribution selection cancelled')
 })
 
 test('reports when no WSL distributions are installed', async (): Promise<void> => {
@@ -83,7 +116,7 @@ test('reports when no WSL distributions are installed', async (): Promise<void> 
 })
 
 test('reports WSL list failures without changing the workspace', async (): Promise<void> => {
-  const { calls, dependencies, errors } = createDependencies(undefined)
+  const { calls, dependencies, errors, logs } = createDependencies(undefined)
   const failingDependencies = {
     ...dependencies,
     invoke: async (): Promise<unknown> => {
@@ -94,6 +127,24 @@ test('reports WSL list failures without changing the workspace', async (): Promi
   await connectUsingDistro(failingDependencies)
 
   assert.deepEqual(calls, [])
+  assert.deepEqual(errors, ['Failed to connect to WSL: WSL is unavailable'])
+  assert.match(logs.at(-1) ?? '', /^\[2026-09-27T12:34:56\.789Z\] Failed to connect to WSL: Error: WSL is unavailable/)
+})
+
+test('preserves the connection error prompt if output logging fails', async (): Promise<void> => {
+  const { dependencies, errors } = createDependencies(['Ubuntu'])
+  const failingDependencies = {
+    ...dependencies,
+    invoke: async (): Promise<unknown> => {
+      throw new Error('WSL is unavailable')
+    },
+    log: async (): Promise<void> => {
+      throw new Error('output unavailable')
+    },
+  }
+
+  await connect(failingDependencies)
+
   assert.deepEqual(errors, ['Failed to connect to WSL: WSL is unavailable'])
 })
 

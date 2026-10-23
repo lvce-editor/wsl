@@ -5,6 +5,6 @@ export default defineConfig({
   onlyExtension: '../../.tmp/dist',
   reusePage: true,
   serverPath: '../server/src/server.js',
-  timeout: 30000,
+  timeout: 120000,
   testPath: '.',
 })

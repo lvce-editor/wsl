@@ -35,7 +35,7 @@ const waitForText = async (expect: TestApi['expect'], locator: LocatorType, text
   await expect(locator).toContainText(text)
 }
 
-export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator, SideBar, Workspace, Wsl }) => {
+export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator, QuickPick, SideBar, Workspace, Wsl }) => {
   // Workspace.setPath converts this native filesystem path to a file URI for the terminal.
   const terminalDirectory = await Command.execute('PlatformPaths.getTmpDir')
   // eslint-disable-next-line @typescript-eslint/no-deprecated
@@ -74,11 +74,20 @@ export const test: Test = async ({ Command, expect, Explorer, KeyBoard, Locator,
     await Explorer.refresh()
     try {
       await expect(bootEntry).toBeVisible()
-      return
+      break
     } catch {
       // The WSL command runs in a separate process; refresh until its workspace update is rendered.
     }
   }
-  await Explorer.expandAll()
   await expect(bootEntry).toBeVisible()
+
+  await QuickPick.open()
+  await QuickPick.setValue('>WSL: Show Log')
+  await QuickPick.selectItem('WSL: Show Log', { waitUntil: 'done' })
+  const outputChannel = Locator('[name="output"]')
+  const outputContent = Locator('.OutputContent')
+  await expect(outputContent).toBeVisible()
+  await expect(outputChannel).toHaveValue('wsl')
+  await expect(outputContent).toContainText('Starting WSL connection')
+  await expect(outputContent).toContainText('Connected to WSL distribution:')
 }
